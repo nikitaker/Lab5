@@ -1,7 +1,5 @@
 public class Clothes {
 
-    Task task = new Task(true);
-
     String name;
     String color;
     void dressUp(){

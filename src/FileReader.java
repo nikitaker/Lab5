@@ -1,4 +1,8 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
+import java.lang.management.GarbageCollectorMXBean;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -14,14 +18,15 @@ class FileReader {
             try {
                 file = new File(path);
                 Scanner sc = new Scanner(file);
+                StringBuilder stringBuilder = new StringBuilder();
                 while (sc.hasNextLine()) {
-
-                    String string = sc.nextLine();
-                    Comands.addToCollection(Comands.getFlySpeed(string), Comands.getObjectName(string));
+                    stringBuilder.append(sc.nextLine());
                 }
                 sc.close();
-            } catch (java.io.FileNotFoundException e) {
-                System.out.println(e);
+                String string = stringBuilder.toString().replaceAll("insert","").replaceAll(" ","").replaceAll("\t","").replaceAll("\n","");
+                Comands.addToCollection(string);
+            } catch (Exception e) {
+                System.out.println("Файл пуст или не существует");
             }
         }
     }
@@ -29,17 +34,10 @@ class FileReader {
     static void endProg(String path){
         try {
             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
-            byte[] bytes;
-            StringBuilder output = new StringBuilder();
-            output.append("{\n");
-            Iterator<Long> iterator = Main.collection.keySet().iterator();
-            while (iterator.hasNext()) {
-                Long element = iterator.next();
-                output.append('"' + element.toString() +'"'+':'+'"'+ Main.collection.get(element) + '"' + ",\n");
-            }
-            output.append('}');
-            bytes = output.toString().getBytes();
-            outputStream.write(bytes);
+            Gson gson = new GsonBuilder().create();
+            String s = gson.toJson(Main.collection);
+            System.out.println(s);
+            outputStream.write(s.getBytes());
             outputStream.close();
         }
         catch (FileNotFoundException e){

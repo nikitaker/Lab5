@@ -3,12 +3,13 @@ import java.util.Map;
 
 public class Main {
 
-    static Map<Long, Object> collection = new HashMap<Long,Object>();
+    static Map<Long, Karlson> collection = new HashMap<Long, Karlson>();
+    static String path = "/home/hakerman/collection.json";
 
     public static void main(String[] args)
     {
         String variant = "10149";
-        String path = System.getenv("KARLSON");
+        //String path = System.getenv("KARLSON");
         //String path = "/home/hakerman/collection.json";
         //String path2 = "/home/hakerman/collection.json";
 
@@ -22,7 +23,7 @@ public class Main {
         }));
 
         FileReader.generate(path);
-        //FileReader.endProg(path);
+
         System.out.println(collection.keySet());
         try {
             ConsoleCom.start();

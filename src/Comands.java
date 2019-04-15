@@ -1,4 +1,6 @@
-import org.jetbrains.annotations.NotNull;
+import com.google.gson.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Comands {
     static Long getFlySpeed(String string) {
@@ -17,7 +19,12 @@ public class Comands {
                 i++;
             }
             System.out.println(a1);
-            return Long.parseLong(a1.toString());
+            try {
+                return Long.parseLong(a1.toString());
+            }
+            catch (NumberFormatException e){
+                System.out.println("Ключ должен быть числом");
+            }
         }
         return null;
     }
@@ -42,16 +49,13 @@ public class Comands {
         return null;
     }
 
-    static void addToCollection(Long l, String s){
-        if (l != null && s != null) {
-            Karlson obj = new Karlson();
-            obj.name = s;
-            obj.flyspeed = l;
-            Main.collection.put(l, s);
-        }
+    static void addToCollection(String s){
+        Gson gson = new GsonBuilder().create();
+        Map<Long, Karlson> map = gson.fromJson(s,Map.class);
+        Main.collection.putAll(map);
     }
 
-    @NotNull
+
     static String findInPer(String string){
         int i = 0;
         char[] array = string.toCharArray();
@@ -65,4 +69,5 @@ public class Comands {
         }
         return stringBuilder.toString();
     }
+
 }
