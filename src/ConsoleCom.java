@@ -1,10 +1,15 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Date;
 
 public class ConsoleCom {
 
@@ -41,25 +46,17 @@ public class ConsoleCom {
             }
 
             if (Arrays.asList(line.split(" ")).contains("insert")) {
-                char[] chars;
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(line);
                 boolean hasPer = true;
                 while (hasPer) {
                     String inputLine = br.readLine();
                     stringBuilder.append(inputLine);
-                    chars = stringBuilder.toString().toCharArray();
-                    int i1 = 0;
-                    while (i1 < chars.length) {
-                        if (chars[i1] == '}') {
-                            hasPer = false;
-                            break;
-                        }
-                        i1++;
+                    if (inputLine == "") {
+                        hasPer = false;
                     }
                 }
                 String lines = stringBuilder.toString().replaceAll("insert", "").replaceAll(" ", "").replaceAll("\t", "").replaceAll("\n", "");
-                System.out.println(lines);
                 Comands.addToCollection(lines);
 
             }
@@ -73,18 +70,43 @@ public class ConsoleCom {
                 System.out.println("add_if_max {element}: добавить новый элемент в коллекцию, если его значение превышает значение наибольшего элемента этой коллекции");
                 System.out.println("exit: выход из программы с сохранением");
             }
-
-
+            if (Arrays.asList(line.split(" ")).contains("add_if_max")) {
+                String lines = line.replaceAll("add_if_max", "").replaceAll(" ", "").replaceAll("\t", "").replaceAll("\n", "");
+                Gson gson = new GsonBuilder().create();
+                Karlson karlson = gson.fromJson(lines,Karlson.class);
+                Long ln = Collections.max(Main.collection.keySet());
+                if(karlson.flyspeed > ln){
+                    Comands.addToCollection(lines);
+                }
+            }
+            if (Arrays.asList(line.split(" ")).contains("add_if_min")) {
+                String lines = line.replaceAll("add_if_min", "").replaceAll(" ", "").replaceAll("\t", "").replaceAll("\n", "");
+                Gson gson = new GsonBuilder().create();
+                Karlson karlson = gson.fromJson(lines,Karlson.class);
+                Long ln = Collections.min(Main.collection.keySet());
+                if(karlson.flyspeed > ln){
+                    Comands.addToCollection(lines);
+                }
+            }
             if (line.equals("exit")) {
                 FileReader.endProg(Main.path);
                 break;
             }
+            if (line.equals("info")) {
+                StringBuilder result = new StringBuilder();
+                Iterator e = Main.collection.entrySet().iterator();
 
+                result.append("Размер коллекции: "+ Main.collection.size()+ "\n");
+                result.append("Тип коллекции: "+ Main.collection.getClass().getName()+"\n");
+                Date d = new Date();
+                result.append("Дата инцициализации: "+d.toString());
+                System.out.println(result.toString());
+
+            }
             if (line.equals("show")) {
                 Iterator iterator = Main.collection.entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry karlsonEntry = (Map.Entry) iterator.next();
-
                     System.out.println(karlsonEntry.getValue());
                 }
             }
