@@ -1,5 +1,35 @@
-public class Karlson implements Person,Helicopter {
+package shared;
 
+import shared.People;
+import shared.Person;
+import shared.State;
+
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+
+public class Karlson implements Person, Helicopter, Comparable<Karlson>, Serializable {
+
+
+    @Override
+    public int compareTo(Karlson karlson) {
+        return this.flyspeed.compareTo(karlson.flyspeed);
+    }
+
+    public Karlson(String name, Long flyspeed) {
+        this.setName(name);
+        this.setFlyspeed(flyspeed);
+
+    }
+
+    public void setDateTime(OffsetDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public OffsetDateTime getDateTime() {
+        return dateTime;
+    }
+
+    private OffsetDateTime dateTime = OffsetDateTime.now();
     State state;
     Clothes clothes = new Clothes();
     Long flyspeed;
@@ -33,6 +63,21 @@ public class Karlson implements Person,Helicopter {
     public void talk(People person){
         System.out.println("Карлсон сказал:");
 
+    }
+
+    public Long getFlyspeed(){
+        return this.flyspeed;
+    }
+    public void setFlyspeed(Long flyspeed){
+        this.flyspeed = flyspeed;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

@@ -1,4 +1,8 @@
-public class Clothes {
+package shared;
+
+import java.io.Serializable;
+
+public class Clothes implements Serializable {
 
     String name;
     String color;

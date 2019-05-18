@@ -1,6 +1,11 @@
+package shared;
+
 import com.google.gson.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
 
 public class Comands {
     static Long getFlySpeed(String string) {
@@ -49,11 +54,23 @@ public class Comands {
         return null;
     }
 
-    static void addToCollection(String s){
-        Gson gson = new GsonBuilder().create();
-        Map<Long, Karlson> map = gson.fromJson(s,Map.class);
-        Main.collection.putAll(map);
+    public static ConcurrentHashMap<Long,Karlson> parseKarlsonMap(String s)
+    {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.enableComplexMapKeySerialization();
+        Gson gson = gsonBuilder.create();
+        Type type = new TypeToken<ConcurrentHashMap<Long, Karlson>>(){}.getType();
+        ConcurrentHashMap<Long,Karlson> map = gson.fromJson(s,type);
+        ConcurrentHashMap<Long,Karlson> concurrentHashMap = null;
+        //for(Karlson karlson:map.values()){concurrentHashMap.put(karlson.getFlyspeed(),karlson);}
+        System.out.println(map);
+        return map;
     }
+
+    public static Karlson findKarlson(ConcurrentHashMap<Long,Karlson> map){
+        return (Karlson) map.values().toArray()[0];
+    }
+
 
 
     static String findInPer(String string){

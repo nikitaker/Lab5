@@ -1,3 +1,5 @@
+package shared;
+
 public class Task {
     static public class StaticNestedClass{}
 

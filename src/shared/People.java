@@ -1,3 +1,5 @@
+package shared;
+
 public abstract class People implements Person {
 
     String name;
