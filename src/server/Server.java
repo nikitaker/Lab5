@@ -4,7 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Handler;
 
 import shared.*;
 import shared.FileReader;
@@ -15,7 +17,8 @@ public class Server extends Thread{
     private int port;
     private ConcurrentHashMap<Long,Karlson> storage;
     private String filename;
-
+    private CommandHandler handler;
+    InetSocketAddress clientAddress;
 
     public Server(int port) throws IOException {
         this.port = port;
@@ -46,52 +49,65 @@ public class Server extends Thread{
 
         System.out.println("-- Running Server at " + InetAddress.getLocalHost() + " --");
 
-        CommandHandler handler;
-
-
         while (true) {
             // Receiving udp package
             ByteBuffer buffer = ByteBuffer.allocate(8192);
             buffer.clear();
-            InetSocketAddress clientAddress = (InetSocketAddress) udpChannel.receive(buffer);
+            clientAddress = (InetSocketAddress) udpChannel.receive(buffer);
 
             Command command;
 
             try (ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
-                 ObjectInputStream ois = new ObjectInputStream(bais);
-                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                 ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+                 ObjectInputStream ois = new ObjectInputStream(bais)){
 
                 command = (Command) ois.readObject();
+                ois.close();
+                bais.close();
                 System.out.println("-- Client's input: " + command.getCommand());
+
 
                 handler = new CommandHandler();
                 handler.setStart(command, storage);
                 handler.start();
-                Response response = new Response(handler.getResponse());
-
-                while (response.getResponse() == null){
-                    response.setResponse(handler.getResponse());
-                }
-                if (response.getResponse() != null) {
-                    oos.writeObject(response);
-                    oos.flush();
-                    buffer.clear();
-                    buffer.put(baos.toByteArray());
-                    buffer.flip();
-                    udpChannel.send(buffer, clientAddress);
-                }
+                run();
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
+
     }
 
 
     @Override
-    public void run() {
-        super.run();
+    public void run()
+    {
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(8192);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.flush();
+            Response response = new Response(handler.getResponse());
+
+            int i = 0;
+            while (i <= 100000 && response.getResponse() == null) {
+                response.setResponse(handler.getResponse());
+                i = i+1;
+            }
+
+            if (response.getResponse() != null) {
+                oos.writeObject(response);
+                response.setResponse(null);
+                oos.flush();
+                buffer.clear();
+                buffer.put(baos.toByteArray());
+                buffer.flip();
+                udpChannel.send(buffer, clientAddress);
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void showUsage() {
@@ -121,6 +137,8 @@ public class Server extends Thread{
         }
         try {
             server.loadCollection();
+            server.listen();
+            server.listen();
             server.listen();
         }catch (Exception e)
         {

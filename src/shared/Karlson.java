@@ -5,7 +5,7 @@ import shared.Person;
 import shared.State;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
+import java.util.Date;
 
 public class Karlson implements Person, Helicopter, Comparable<Karlson>, Serializable {
 
@@ -21,15 +21,15 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
 
     }
 
-    public void setDateTime(OffsetDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 
-    public OffsetDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    private OffsetDateTime dateTime = OffsetDateTime.now();
+    private Date dateTime;
     State state;
     Clothes clothes = new Clothes();
     Long flyspeed;

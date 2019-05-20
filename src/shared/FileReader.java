@@ -28,7 +28,7 @@ public class FileReader {
                     stringBuilder.append(sc.nextLine());
                 }
                 sc.close();
-                String string = stringBuilder.toString().replaceAll("insert","").replaceAll(" ","").replaceAll("\t","").replaceAll("\n","");
+                String string = stringBuilder.toString().replaceAll("\t","").replaceAll("\n","");
                 return Comands.parseKarlsonMap(string);
             }
             catch (Exception e) {

@@ -1,6 +1,9 @@
 package shared;
 
 import com.google.gson.*;
+
+import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +71,17 @@ public class Comands {
     }
 
     public static Karlson findKarlson(ConcurrentHashMap<Long,Karlson> map){
-        return (Karlson) map.values().toArray()[0];
+        try {
+            Karlson karlson = (Karlson) map.values().toArray()[0];
+            karlson.setFlyspeed((Long) map.keySet().toArray()[0]);
+            karlson.setDateTime(new Date());
+            return karlson;
+            }
+        catch(Exception e)
+            {
+                System.out.println("Объект не карлсон");
+            }
+        return null;
     }
 
 

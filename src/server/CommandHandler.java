@@ -1,14 +1,10 @@
 package server;
 
-import java.io.*;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 import shared.*;
 import shared.FileReader;
-
-import javax.swing.text.Document;
 
 public class CommandHandler extends Thread {
 
@@ -193,16 +189,19 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] remove(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson){
-        long start = storage.size();
-        synchronized(storage) {
-            storage.entrySet()
-                    .removeIf(entry -> (karlson.getFlyspeed().equals(entry.getKey())));
-        }
-        long end = storage.size();
-        if ((start - end) > 0) {
-            System.out.println("A karlson \"" + karlson.toString() + "\" has been deleted");
-            return ("A karlson \"" + karlson.toString() + "\" has been deleted :(").getBytes();
-        } else {return "There's no such object in the collection. Try adding instead.".getBytes();}
+            long start = storage.size();
+            synchronized (storage) {
+                storage.entrySet()
+                        .removeIf(entry -> (karlson.getFlyspeed().equals(entry.getKey())));
+            }
+            long end = storage.size();
+
+            if ((start - end) > 0) {
+                System.out.println("A karlson \"" + karlson.toString() + "\" has been deleted");
+                return ("A karlson \"" + karlson.toString() + "\" has been deleted :(").getBytes();
+            } else {
+                return "There's no such object in the collection. Try adding instead.".getBytes();
+            }
     }
 
     public byte[] remove_lower(ConcurrentHashMap<Long,Karlson> storage, Karlson endObject) {
@@ -210,7 +209,7 @@ public class CommandHandler extends Thread {
 
         long start = storage.size();
         synchronized(storage) {
-            storage.entrySet().removeIf(item -> item.getValue().compareTo(endObject) > 0);
+            storage.entrySet().removeIf(item -> item.getValue().compareTo(endObject) < 0);
         }
         long end = storage.size();
 

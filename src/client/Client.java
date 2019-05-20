@@ -149,11 +149,11 @@ public class Client {
                 }else if (command.equals("add_if_max") && commandEnd) {
 
                     lastCommand = "add_if_max";
-                    commandEnd = false;
                     correctCommand = true;
-                    addStr = input.substring(10).trim();
+                    commandEnd = false;
                     nestingJSON += charCounter(addStr, '{');
                     nestingJSON -= charCounter(addStr, '}');
+                    addStr = input.substring(10).trim();
                     if (nestingJSON == 0) {
                         commandEnd = true;
                     }
@@ -240,22 +240,24 @@ public class Client {
                     try(ByteArrayInputStream bais = new ByteArrayInputStream(resp);
                         ObjectInputStream ois = new ObjectInputStream(bais)) {
                         Response response = (Response) ois.readObject();
+                        ois.close();
                         String output = new String(decodeResponse(lastCommand, response));
                         if (!output.equals("show")) {
                             System.out.println(output);
                         }
                     } catch (IOException e) {
-                            e.printStackTrace();
+                        System.out.println("Потеря потока данных");
+                        //e.printStackTrace();
                     }
 
                 } catch (Exception e) {
-                    //System.err.println("Wrong data, try again later");
-                    e.printStackTrace();
+                    System.err.println("Неправильный JSON");
+
                 }
                 System.out.print("> ");
             } else if (commandEnd) {
                 if (!input.trim().equals("")) {
-                    System.err.println("Error: undefined command!");
+                    System.err.println("Команда не определена");
                 }
                 System.out.print("> ");
             }
