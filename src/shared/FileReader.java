@@ -33,7 +33,7 @@ public class FileReader {
             }
             catch (Exception e) {
                 System.out.println("Файл пуст или не сущесвует");
-                e.printStackTrace();
+                //e.printStackTrace();
                 return null;
             }
         }

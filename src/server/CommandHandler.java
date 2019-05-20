@@ -1,5 +1,10 @@
 package server;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,12 +14,17 @@ import shared.FileReader;
 public class CommandHandler extends Thread {
 
     private InetAddress inetAddress;
+    DatagramPacket datagramPacket;
     private int port;
     public static String fileName;
-    private static String FILEPATH = "karlson.json";
+    public static String FILEPATH = "karlson.json";
     private Object response;
     private ConcurrentHashMap<Long,Karlson> starthashMap;
     private Command startComand;
+
+    public static void setFILEPATH(String FILEPATH) {
+        CommandHandler.FILEPATH = FILEPATH;
+    }
 
     public CommandHandler(InetAddress inetAddress, int port) {
         this.inetAddress = inetAddress;
@@ -25,14 +35,32 @@ public class CommandHandler extends Thread {
 
     }
 
-    public void setStart(Command command, ConcurrentHashMap<Long,Karlson> map){
+    public void setStart(Command command, ConcurrentHashMap<Long,Karlson> map, DatagramPacket datagramPacket){
         this.startComand = command;
         this.starthashMap = map;
+        this.datagramPacket = datagramPacket;
+
     }
 
     @Override
     public void run() {
-         this.response = handleCommand(startComand,starthashMap);
+        try {
+            DatagramSocket udpSocket = new DatagramSocket();
+            this.response = handleCommand(startComand, starthashMap);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            Response response = new Response(this.getResponse());
+
+            if (response.getResponse() != null) {
+                oos.writeObject(response);
+                oos.flush();
+                datagramPacket.setData(baos.toByteArray());
+                System.out.println(datagramPacket);
+                udpSocket.send(datagramPacket);
+            }
+        }
+        catch (Exception e)
+        {e.printStackTrace();}
     }
 
     public Object getResponse() {
@@ -100,19 +128,15 @@ public class CommandHandler extends Thread {
 
     public byte[] show(ConcurrentHashMap<Long,Karlson> storage) {
 
-        try {
-            StringBuilder stringBuilder = new StringBuilder();
-            Iterator iterator = storage.values().iterator();
-            while (iterator.hasNext())
-            {
-                Karlson karlson = (Karlson) iterator.next();
-                stringBuilder.append("Ключ = " + karlson.getFlyspeed() + " Имя = " + karlson.getName() + " Дата создания = " + karlson.getDateTime() + " \n");
-            }
-
-            return stringBuilder.toString().getBytes();
-        } catch (Exception e) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(outputStream)){
+            ArrayList<Karlson> list = new ArrayList<Karlson>(storage.values());
+            Collections.sort(new ArrayList<Karlson>(storage.values()));
+            oos.writeObject(list);
+            oos.flush();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
             System.err.println("Aliens snatched the collection! Can't show it.");
-            e.printStackTrace();
         }
 
         return null;
@@ -140,7 +164,8 @@ public class CommandHandler extends Thread {
         if (storage.size() > 0) {
             synchronized (storage.entrySet()) {
                 Karlson min = storage
-                        .values().stream()
+                        .values()
+                        .stream()
                         .min(Karlson::compareTo)
                         .get();
                 if (karlson.compareTo(min) < 0) {
@@ -158,7 +183,8 @@ public class CommandHandler extends Thread {
         if (storage.size() > 0) {
             synchronized (storage.entrySet()) {
                 Karlson max = storage
-                        .values().stream()
+                        .values()
+                        .stream()
                         .max(Karlson::compareTo)
                         .get();
                 if (karlson.compareTo(max) > 0) {
@@ -173,12 +199,12 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] import1(ConcurrentHashMap<Long,Karlson> storage, ConcurrentHashMap<Long,Karlson> importing) {
-        long start = storage.size();
+        long start = storage.entrySet().stream().count();
         Collection<Karlson>imported = importing.values();
         for (Karlson karlson: imported) {
             add(storage, karlson);
         }
-        long end = storage.size();
+        long end = storage.entrySet().stream().count();
         System.out.println("Imported "+ (end-start) + " objects.");
         return ("+++++ Imported "+ (end-start) + " objects +++++").getBytes();
     }
@@ -189,12 +215,12 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] remove(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson){
-            long start = storage.size();
+            long start = storage.entrySet().stream().count();
             synchronized (storage) {
                 storage.entrySet()
                         .removeIf(entry -> (karlson.getFlyspeed().equals(entry.getKey())));
             }
-            long end = storage.size();
+            long end = storage.entrySet().stream().count();
 
             if ((start - end) > 0) {
                 System.out.println("A karlson \"" + karlson.toString() + "\" has been deleted");
@@ -207,11 +233,11 @@ public class CommandHandler extends Thread {
     public byte[] remove_lower(ConcurrentHashMap<Long,Karlson> storage, Karlson endObject) {
 
 
-        long start = storage.size();
+        long start = storage.entrySet().stream().count();
         synchronized(storage) {
             storage.entrySet().removeIf(item -> item.getValue().compareTo(endObject) < 0);
         }
-        long end = storage.size();
+        long end = storage.entrySet().stream().count();
 
 
         System.out.println("Deleted " + (start - end) + " objects.");
@@ -220,11 +246,11 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] help() {
-        String jsonExample = "\r\n{\r\n   \"name\": \"Elizabeth\",\r\n   \"age\": \"16\",\r\n   \"skill\": {\r\n      \"name\": \"\u041F\u0440\u044B\u0433\u0430\u0442\u044C\"\r\n   },\r\n   \"disability\": \"chin\"\r\n}\r";
+        String jsonExample = "\r\n{\r\n   123 : { \"name\": \"kolya\",\r\n  \"flyspeed\":  \"123\" \r\n   \"clothes\": \"{}\"\r\n}\r";
 
         return ("\nAvailable commands: \n" +
                 "Example of JSON Karlson declaration:" + jsonExample +
-                "\n* add {element} - adds an element to collection, element - is a JSON string, see above" +
+                "\n* insert {element} - adds an element to collection, element - is a JSON string, see above" +
                 "\n* show - shows a list of all elements in a collection" +
                 "\n* save - save a collection to a source file" +
                 "\n* import {path} - adds all of the elements to a collection from a file, path - path to the .csv file" +

@@ -81,6 +81,11 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
     }
 
     @Override
+    public String toString() {
+        return "name " + this.getName() + ", flyspeed " + this.getFlyspeed() + ", date " + this.getDateTime();
+    }
+
+    @Override
     public void scream() {
         System.out.println("AAAAAAAAAAAAAAAAAAAAA");
     }

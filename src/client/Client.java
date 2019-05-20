@@ -1,26 +1,30 @@
 package client;
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketTimeoutException;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
-
 import shared.*;
 import shared.FileReader;
 
 
 public class Client {
-    private DatagramSocket udpSocket;
-    private InetAddress serverAddress;
-    private int port;
+    private DatagramChannel udpChanel;
+    private InetSocketAddress serverAddress;
+    private DatagramSocket udpChanelSocket;
     private Scanner scanner;
+
     private Client(String destinationAddr, int port) throws IOException {
 
-        this.serverAddress = InetAddress.getByName(destinationAddr);
-        this.port = port;
-        this.udpSocket = new DatagramSocket();
+        //this.port = port;
+        this.serverAddress = new InetSocketAddress(destinationAddr,port);
+        this.udpChanel = DatagramChannel.open();
+        this.udpChanelSocket = udpChanel.socket();
+        this.udpChanelSocket.bind(new InetSocketAddress(6666));
+
         scanner = new Scanner(System.in);
     }
 
@@ -33,26 +37,30 @@ public class Client {
 
     public void testServerConnection() throws IOException {
         System.out.println("Trying to reach a remote host...");
-        DatagramPacket testRequest = createRequest("connecting", "");
+        ByteArrayOutputStream testRequest = createRequest("connecting", "");
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        udpChanel.socket().setSoTimeout(1000);
+        buffer.clear();
+        buffer.put(testRequest.toByteArray());
+        buffer.flip();
 
-        byte[] buf = new byte[256];
-        DatagramPacket testResponse = new DatagramPacket(buf, buf.length);
 
         boolean connected = false;
-        this.udpSocket.setSoTimeout(1000);
         String connectString;
+
         for (int i = 1; i < 11; i++) {
             System.out.println("\t* Attempt #" + i);
-            this.udpSocket.send(testRequest);
+            udpChanel.send(buffer,serverAddress);
+            buffer.clear();
             try {
-                this.udpSocket.receive(testResponse);
-            } catch (SocketTimeoutException e) {
+                this.udpChanel.socket().receive(new DatagramPacket(buffer.array(), buffer.array().length));
+            }
+            catch (Exception e){
                 continue;
             }
 
-
-            try(ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-                ObjectInputStream ois = new ObjectInputStream(bais)) {
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
+                 ObjectInputStream ois = new ObjectInputStream(bais)) {
                 Response response = (Response) ois.readObject();
                 connectString = new String(decodeResponse("connecting", response));
             } catch (IOException | ClassNotFoundException e) {
@@ -65,14 +73,15 @@ public class Client {
             }
         }
 
-        if (connected) {
-            System.out.println("Connection with the server is established");
-        } else {
-            System.err.println("Server is unreachable at this moment");
-            System.exit(1);
+            if (connected) {
+                System.out.println("Connection with the server is established");
+            } else {
+                System.err.println("Server is unreachable at this moment");
+                System.exit(1);
+            }
         }
 
-    }
+
 
     private int start() throws IOException {
         System.out.println("Client is established");
@@ -85,7 +94,7 @@ public class Client {
         boolean commandEnd = true;
         boolean correctCommand = false;
         int nestingJSON = 0;
-        DatagramPacket request = null;
+        ByteArrayOutputStream request = null;
 
         while (!(input = scanner.nextLine().trim()).toLowerCase().equals("exit")) {
             if (!input.equals("")) {
@@ -224,20 +233,25 @@ public class Client {
             if (commandEnd && correctCommand) {
                 try {
                     if (request != null) {
-                        this.udpSocket.send(request);
+                        ByteBuffer buffer = ByteBuffer.allocate(8192);
+                        buffer.clear();
+                        buffer.put(request.toByteArray());
+                        buffer.flip();
+                        this.udpChanel.send(buffer,serverAddress);
                     } else {
                         throw new Exception();
                     }
-                    byte[] resp = new byte[8192];
-                    DatagramPacket responsePacket = new DatagramPacket(resp, resp.length);
+
+                    ByteBuffer buffer = ByteBuffer.allocate(8192);
+                    buffer.clear();
                     try {
-                        this.udpSocket.receive(responsePacket);
+                        this.udpChanel.receive(buffer);
                     } catch (SocketTimeoutException e) {
                         System.err.println("Disconnected from host");
                         testServerConnection();
                     }
 
-                    try(ByteArrayInputStream bais = new ByteArrayInputStream(resp);
+                    try(ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
                         ObjectInputStream ois = new ObjectInputStream(bais)) {
                         Response response = (Response) ois.readObject();
                         ois.close();
@@ -247,7 +261,7 @@ public class Client {
                         }
                     } catch (IOException e) {
                         System.out.println("Потеря потока данных");
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
 
                 } catch (Exception e) {
@@ -262,12 +276,10 @@ public class Client {
                 System.out.print("> ");
             }
         }
-
         return 0;
     }
 
-    private DatagramPacket createRequest(String command, String data) throws IOException {
-        byte[] sending;
+    private ByteArrayOutputStream createRequest(String command, String data) throws IOException {
         Command c = new Command(command, data);
 
         if (command.equals("add") || command.equals("add_if_min")
@@ -289,10 +301,8 @@ public class Client {
              ObjectOutputStream oos = new ObjectOutputStream(outputStream)){
             oos.writeObject(c);
             oos.flush();
-            sending = outputStream.toByteArray();
-            return new DatagramPacket(sending, sending.length, serverAddress, port);
+            return outputStream;
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException();
         }
 
@@ -300,12 +310,12 @@ public class Client {
     }
 
     private byte[] decodeResponse(String command, Response response) {
-        if (command.equals("sho")) {
+        if (command.equals("show")) {
             try (ByteArrayInputStream bais = new ByteArrayInputStream((byte[])response.getResponse());
                  ObjectInputStream ois = new ObjectInputStream(bais)) {
-                ConcurrentHashMap<Long,Karlson> storage = (ConcurrentHashMap<Long, Karlson>) ois.readObject();
+                ArrayList<Karlson> storage = (ArrayList<Karlson>) ois.readObject();
                 synchronized (storage) {
-                    storage.entrySet().forEach(System.out::println);
+                    storage.forEach(System.out::println);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

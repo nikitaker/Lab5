@@ -4,27 +4,25 @@ import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Handler;
 
 import shared.*;
 import shared.FileReader;
 
 public class Server extends Thread{
 
-    private DatagramChannel udpChannel;
+    private DatagramSocket udpSocket;
     private int port;
     private ConcurrentHashMap<Long,Karlson> storage;
     private String filename;
     private CommandHandler handler;
-    InetSocketAddress clientAddress;
+    byte[] buf = new byte[8192];
 
     public Server(int port) throws IOException {
         this.port = port;
-        this.udpChannel = DatagramChannel.open().bind(new InetSocketAddress("localhost", port));
+        this.udpSocket = new DatagramSocket(port);
         System.out.println("-- Yahoo! We Have A Lift Off! --");
-        System.out.println("-- UDP Server settings --");
+        System.out.println("-- UDP Server setimport java.util.Setings --");
         System.out.println("-- UDP address: " + InetAddress.getLocalHost() + " --");
         System.out.println("-- UDP port: " + this.port + " --");
 
@@ -50,29 +48,29 @@ public class Server extends Thread{
         System.out.println("-- Running Server at " + InetAddress.getLocalHost() + " --");
 
         while (true) {
-            // Receiving udp package
-            ByteBuffer buffer = ByteBuffer.allocate(8192);
-            buffer.clear();
-            clientAddress = (InetSocketAddress) udpChannel.receive(buffer);
+
+            DatagramPacket datagramPacket = new DatagramPacket(buf,buf.length);
+            udpSocket.receive(datagramPacket);
+            InetAddress address = datagramPacket.getAddress();
+            int port = datagramPacket.getPort();
+            datagramPacket = new DatagramPacket(buf,buf.length,address,port);
 
             Command command;
 
-            try (ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(buf);
                  ObjectInputStream ois = new ObjectInputStream(bais)){
-
                 command = (Command) ois.readObject();
-                ois.close();
-                bais.close();
+
                 System.out.println("-- Client's input: " + command.getCommand());
 
 
                 handler = new CommandHandler();
-                handler.setStart(command, storage);
+                handler.setFILEPATH(this.filename);
+                handler.setStart(command, storage, datagramPacket);
                 handler.start();
-                run();
 
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+
             }
         }
 
@@ -82,32 +80,7 @@ public class Server extends Thread{
     @Override
     public void run()
     {
-        try {
-            ByteBuffer buffer = ByteBuffer.allocate(8192);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.flush();
-            Response response = new Response(handler.getResponse());
 
-            int i = 0;
-            while (i <= 100000 && response.getResponse() == null) {
-                response.setResponse(handler.getResponse());
-                i = i+1;
-            }
-
-            if (response.getResponse() != null) {
-                oos.writeObject(response);
-                response.setResponse(null);
-                oos.flush();
-                buffer.clear();
-                buffer.put(baos.toByteArray());
-                buffer.flip();
-                udpChannel.send(buffer, clientAddress);
-            }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     public static void showUsage() {
@@ -131,6 +104,15 @@ public class Server extends Thread{
         }
 
         Server server = new Server(input_port);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                FileReader.endProg(server.storage,server.filename);
+                System.out.println("Server data saved");
+            } catch (Exception e) {
+                System.err.println("************* YARIK BOCHOK POTIK  **************");
+            }
+        }));
 
         if (args.length == 2) {
             server.setFilename(args[1]);
