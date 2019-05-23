@@ -2,10 +2,7 @@ package server;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.util.concurrent.ConcurrentHashMap;
-
 import shared.*;
 import shared.FileReader;
 
@@ -65,7 +62,6 @@ public class Server extends Thread{
 
 
                 handler = new CommandHandler();
-                handler.setFILEPATH(this.filename);
                 handler.setStart(command, storage, datagramPacket);
                 handler.start();
 

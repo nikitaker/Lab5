@@ -23,7 +23,7 @@ public class Client {
         this.serverAddress = new InetSocketAddress(destinationAddr,port);
         this.udpChanel = DatagramChannel.open();
         this.udpChanelSocket = udpChanel.socket();
-        this.udpChanelSocket.bind(new InetSocketAddress(6666));
+        //this.udpChanelSocket.bind(new InetSocketAddress(6666));
 
         scanner = new Scanner(System.in);
     }
@@ -245,7 +245,7 @@ public class Client {
                     ByteBuffer buffer = ByteBuffer.allocate(8192);
                     buffer.clear();
                     try {
-                        this.udpChanel.receive(buffer);
+                        this.udpChanel.socket().receive(new DatagramPacket(buffer.array(), buffer.array().length));
                     } catch (SocketTimeoutException e) {
                         System.err.println("Disconnected from host");
                         testServerConnection();
@@ -261,7 +261,7 @@ public class Client {
                         }
                     } catch (IOException e) {
                         System.out.println("Потеря потока данных");
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
 
                 } catch (Exception e) {
@@ -318,7 +318,7 @@ public class Client {
                     storage.forEach(System.out::println);
                 }
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         } else {
             return (byte[])response.getResponse();
@@ -349,7 +349,7 @@ public class Client {
             sender.start();
         } catch (Exception e) {
             System.err.println("Oh no, something bad has happened!");
-            e.printStackTrace();
+            //e.printStackTrace();
             showUsage();
         }
     }

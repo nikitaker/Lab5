@@ -68,7 +68,7 @@ public class CommandHandler extends Thread {
     }
 
     public Object handleCommand(Command com, ConcurrentHashMap<Long,Karlson> storage) {
-        synchronized (CommandHandler.class) {
+
             String command = com.getCommand();
             Object data = com.getData();
 
@@ -122,7 +122,7 @@ public class CommandHandler extends Thread {
                     buffer = "Error: undefined command! Type \"help\" for a list of available commands".getBytes();
             }
             return buffer;
-        }
+
     }
 
 
