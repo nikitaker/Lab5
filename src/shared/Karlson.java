@@ -1,11 +1,7 @@
 package shared;
 
-import shared.People;
-import shared.Person;
-import shared.State;
-
 import java.io.Serializable;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class Karlson implements Person, Helicopter, Comparable<Karlson>, Serializable {
 
@@ -21,19 +17,28 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
 
     }
 
-    public void setDateTime(Date dateTime) {
+    public void setDateTime(ZonedDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
-    public Date getDateTime() {
+    public ZonedDateTime getDateTime() {
         return dateTime;
     }
 
-    private Date dateTime;
+    private ZonedDateTime dateTime;
+    String owner = "all";
     State state;
-    Clothes clothes = new Clothes();
+    Clothes clothes;
     Long flyspeed;
     String name;
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
 
     void dress(){state = State.WITCH;
         System.out.println("Карлсон переоделся в ведьму");}
@@ -48,6 +53,14 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
             return true;
         }
         return false;
+    }
+
+    public void setClothes(Clothes clothes){
+        this.clothes = clothes;
+    }
+
+    public Clothes getClothes() {
+        return clothes;
     }
 
     void swipeHand(Object obj){
@@ -96,7 +109,4 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
         }
     }
 
-    void dissapoint(String reason){
-        System.out.println("Карлсон раздраженно покачал головой так как " + reason);
-    }
 }

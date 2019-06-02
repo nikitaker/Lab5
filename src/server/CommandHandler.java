@@ -15,16 +15,16 @@ public class CommandHandler extends Thread {
 
     private InetAddress inetAddress;
     DatagramPacket datagramPacket;
+    private String username = null;
+    private String password = null;
+    private String mail = null;
     private int port;
     public static String fileName;
     public static String FILEPATH = "karlson.json";
     private Object response;
     private ConcurrentHashMap<Long,Karlson> starthashMap;
     private Command startComand;
-
-    public static void setFILEPATH(String FILEPATH) {
-        CommandHandler.FILEPATH = FILEPATH;
-    }
+    private DataBaseConnection db;
 
     public CommandHandler(InetAddress inetAddress, int port) {
         this.inetAddress = inetAddress;
@@ -35,10 +35,11 @@ public class CommandHandler extends Thread {
 
     }
 
-    public void setStart(Command command, ConcurrentHashMap<Long,Karlson> map, DatagramPacket datagramPacket){
+    public void setStart(Command command, ConcurrentHashMap<Long,Karlson> map, DatagramPacket datagramPacket, DataBaseConnection db){
         this.startComand = command;
         this.starthashMap = map;
         this.datagramPacket = datagramPacket;
+        this.db = db;
 
     }
 
@@ -46,7 +47,7 @@ public class CommandHandler extends Thread {
     public void run() {
         try {
             DatagramSocket udpSocket = new DatagramSocket();
-            this.response = handleCommand(startComand, starthashMap);
+            this.response = handleCommand(startComand, starthashMap, db);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             Response response = new Response(this.getResponse());
@@ -67,7 +68,17 @@ public class CommandHandler extends Thread {
         return response;
     }
 
-    public Object handleCommand(Command com, ConcurrentHashMap<Long,Karlson> storage) {
+    public Object handleCommand(Command com, ConcurrentHashMap<Long,Karlson> storage, DataBaseConnection db) {
+
+        Object credentials = com.getCredentials();
+        if (com.getCredentials() != null && ((String) credentials).split(" ").length > 2) {
+            username = ((String) credentials).split(" ")[0];
+            mail = ((String) credentials).split(" ")[1];
+            password = ((String) credentials).split(" ")[2];
+        } else if (credentials != null) {
+            username = ((String) credentials).split(" ")[0];
+            password = ((String) credentials).split(" ")[1];
+        }
 
             String command = com.getCommand();
             Object data = com.getData();
@@ -80,27 +91,27 @@ public class CommandHandler extends Thread {
                     break;
                 case "add":
                     if (data != null) {
-                        buffer = add(storage, (Karlson) data);
+                        buffer = add(storage, (Karlson) data, db, username);
                     } else {buffer = help();}
                     break;
                 case "add_if_min":
                     if (data != null) {
-                        buffer = add_if_min(storage, (Karlson) data);
+                        buffer = add_if_min(storage, (Karlson) data, db, username);
                     } else {buffer = help();}
                     break;
                 case "add_if_max":
                     if (data != null) {
-                        buffer = add_if_max(storage, (Karlson) data);
+                        buffer = add_if_max(storage, (Karlson) data, db, username);
                     } else {buffer = help();}
                     break;
                 case "remove":
                     if (data != null) {
-                        buffer = remove(storage, (Karlson) data);
+                        buffer = remove(storage, (Karlson) data, db, username);
                     } else {buffer = help();}
                     break;
                 case "remove_lower":
                     if (data != null) {
-                        buffer = remove_lower(storage, (Karlson) data);
+                        buffer = remove_lower(storage, (Karlson) data, db, username);
                     } else {buffer = help();}
                     break;
                 case "show":
@@ -110,13 +121,35 @@ public class CommandHandler extends Thread {
                     buffer = save(storage);
                     break;
                 case "import":
-                    buffer = import1(storage, (ConcurrentHashMap<Long,Karlson>) data);
+                    buffer = import1(storage, (ConcurrentHashMap<Long,Karlson>) data, db, username);
                     break;
                 case "info":
                     buffer = info(storage);
                     break;
                 case "help":
                     buffer = help();
+                    break;
+                case "register":
+                    int resultR = db.executeRegister(username, mail, password);
+                    if (resultR == 1) {
+                        buffer = "Email registration is approved!".getBytes();
+                    } else if (resultR == 0) {
+                        buffer = "You've already registered!".getBytes();
+                    } else {
+                        buffer = "Can't register you".getBytes();
+                    }
+                    break;
+                case "login":
+                    int result = db.executeLogin(username, password);
+                    if (result == 0) {
+                        buffer = "Logged in".getBytes();
+                    } else if (result == 1) {
+                        buffer = "You need to register first!".getBytes();
+                    } else if (result == 2) {
+                        buffer = "Wrong Password!".getBytes();
+                    } else {
+                        buffer = "Can't log in".getBytes();
+                    }
                     break;
                 default:
                     buffer = "Error: undefined command! Type \"help\" for a list of available commands".getBytes();
@@ -131,7 +164,7 @@ public class CommandHandler extends Thread {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(outputStream)){
             ArrayList<Karlson> list = new ArrayList<Karlson>(storage.values());
-            Collections.sort(new ArrayList<Karlson>(storage.values()));
+            Collections.sort(list);
             oos.writeObject(list);
             oos.flush();
             return outputStream.toByteArray();
@@ -144,14 +177,16 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] save(ConcurrentHashMap<Long,Karlson> storage) {
-
-        return FileReader.endProg(storage, FILEPATH);
-
+        if (storage != null) {
+            db.savePersons(storage);
+            return "Saved Karlsons to the DataBase".getBytes();
+        } else return "Collection is empty; nothing to save!".getBytes();
     }
 
-    public byte[] add(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson) {
+    public byte[] add(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson, DataBaseConnection db, String username) {
         synchronized (storage) {
             if (storage.put(karlson.getFlyspeed(),karlson) == null) {
+                db.addToDB(karlson, username);
                 System.out.println("A karlson " + karlson.toString()+ " was successfully added.");
                 return ("A karlson " + karlson.toString()+ " was successfully added.").getBytes();
             } else {
@@ -160,7 +195,7 @@ public class CommandHandler extends Thread {
         }
     }
 
-    public byte[] add_if_min(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson) {
+    public byte[] add_if_min(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson, DataBaseConnection db, String username) {
         if (storage.size() > 0) {
             synchronized (storage.entrySet()) {
                 Karlson min = storage
@@ -169,17 +204,17 @@ public class CommandHandler extends Thread {
                         .min(Karlson::compareTo)
                         .get();
                 if (karlson.compareTo(min) < 0) {
-                    return add(storage, karlson);
+                    return add(storage, karlson, db, username);
                 } else {
                     return (karlson.getName()+ "'s name isn't the smallest: Can't add to a collection!").getBytes();
                 }
             }
         } else {
-            return add(storage, karlson);
+            return add(storage, karlson, db, username);
         }
     }
 
-    public byte[] add_if_max(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson) {
+    public byte[] add_if_max(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson, DataBaseConnection db, String username) {
         if (storage.size() > 0) {
             synchronized (storage.entrySet()) {
                 Karlson max = storage
@@ -188,21 +223,21 @@ public class CommandHandler extends Thread {
                         .max(Karlson::compareTo)
                         .get();
                 if (karlson.compareTo(max) > 0) {
-                    return add(storage, karlson);
+                    return add(storage, karlson, db, username);
                 } else {
                     return (karlson.getName()+ "'s name isn't the biggest: Can't add to a collection!").getBytes();
                 }
             }
         } else {
-            return add(storage, karlson);
+            return add(storage, karlson, db, username);
         }
     }
 
-    public byte[] import1(ConcurrentHashMap<Long,Karlson> storage, ConcurrentHashMap<Long,Karlson> importing) {
+    public byte[] import1(ConcurrentHashMap<Long,Karlson> storage, ConcurrentHashMap<Long,Karlson> importing, DataBaseConnection db, String username) {
         long start = storage.entrySet().stream().count();
         Collection<Karlson>imported = importing.values();
         for (Karlson karlson: imported) {
-            add(storage, karlson);
+            add(storage, karlson, db, username);
         }
         long end = storage.entrySet().stream().count();
         System.out.println("Imported "+ (end-start) + " objects.");
@@ -214,35 +249,31 @@ public class CommandHandler extends Thread {
                 "Currently it contains " + storage.size() + " objects.").getBytes();
     }
 
-    public byte[] remove(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson){
-            long start = storage.entrySet().stream().count();
-            synchronized (storage) {
-                storage.entrySet()
-                        .removeIf(entry -> (karlson.getFlyspeed().equals(entry.getKey())));
-            }
-            long end = storage.entrySet().stream().count();
-
-            if ((start - end) > 0) {
-                System.out.println("A karlson \"" + karlson.toString() + "\" has been deleted");
-                return ("A karlson \"" + karlson.toString() + "\" has been deleted :(").getBytes();
-            } else {
-                return "There's no such object in the collection. Try adding instead.".getBytes();
-            }
+    public byte[] remove(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson, DataBaseConnection db, String username){
+        if (storage.entrySet().removeIf(x -> storage.contains(karlson) && (username.equals(x.getValue().getOwner()) || x.getValue().getOwner().equals("all")))) {
+            db.removePerson(username, karlson);
+            System.out.println("A human " + karlson.toString() + " has been deleted");
+            return ("A human " + karlson.toString() + " has been deleted :(").getBytes();
+        } else {
+            return "There's no such object in the collection. Try adding instead.\nPerhaps, you don't have rights to delete it!".getBytes();
+        }
     }
 
-    public byte[] remove_lower(ConcurrentHashMap<Long,Karlson> storage, Karlson endObject) {
-
+    public byte[] remove_lower(ConcurrentHashMap<Long,Karlson> storage, Karlson endObject, DataBaseConnection db, String username) {
 
         long start = storage.entrySet().stream().count();
-        synchronized(storage) {
-            storage.entrySet().removeIf(item -> item.getValue().compareTo(endObject) < 0);
+        synchronized (storage) {
+            storage.entrySet().stream()
+                    .filter(x -> (username.equals(x.getValue().getOwner()) || x.getValue().getOwner().equals("all")))
+                    .filter(x -> x.getValue().compareTo(endObject) < 0)
+                    .forEach(x -> {
+                        db.removePerson(username, x.getValue());
+                    });
+            storage.entrySet().removeIf(item -> item.getValue().compareTo(endObject) < 0 && (username.equals(item.getValue().getOwner()) || item.getValue().getOwner().equals("all")));
         }
         long end = storage.entrySet().stream().count();
-
-
         System.out.println("Deleted " + (start - end) + " objects.");
         return ("Deleted " + (start - end) + " objects. :(").getBytes();
-
     }
 
     public byte[] help() {

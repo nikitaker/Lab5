@@ -2,10 +2,7 @@ package shared;
 
 import com.google.gson.*;
 
-import java.time.OffsetDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.ZonedDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
@@ -65,7 +62,6 @@ public class Comands {
         Type type = new TypeToken<ConcurrentHashMap<Long, Karlson>>(){}.getType();
         ConcurrentHashMap<Long,Karlson> map = gson.fromJson(s,type);
         ConcurrentHashMap<Long,Karlson> concurrentHashMap = null;
-        //for(Karlson karlson:map.values()){concurrentHashMap.put(karlson.getFlyspeed(),karlson);}
         System.out.println(map);
         return map;
     }
@@ -74,7 +70,7 @@ public class Comands {
         try {
             Karlson karlson = (Karlson) map.values().toArray()[0];
             karlson.setFlyspeed((Long) map.keySet().toArray()[0]);
-            karlson.setDateTime(new Date());
+            karlson.setDateTime(ZonedDateTime.now());
             return karlson;
             }
         catch(Exception e)

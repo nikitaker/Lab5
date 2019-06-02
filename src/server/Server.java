@@ -14,6 +14,7 @@ public class Server extends Thread{
     private String filename;
     private CommandHandler handler;
     byte[] buf = new byte[8192];
+    private DataBaseConnection db;
 
     public Server(int port) throws IOException {
         this.port = port;
@@ -22,7 +23,9 @@ public class Server extends Thread{
         System.out.println("-- UDP Server setimport java.util.Setings --");
         System.out.println("-- UDP address: " + InetAddress.getLocalHost() + " --");
         System.out.println("-- UDP port: " + this.port + " --");
-
+        db = new DataBaseConnection();
+        storage = new ConcurrentHashMap<Long,Karlson>();
+        System.out.println("Added " + db.loadPersons(storage) + " karlsons from the Database.");
     }
 
     public void setFilename(String filename) {
@@ -62,7 +65,7 @@ public class Server extends Thread{
 
 
                 handler = new CommandHandler();
-                handler.setStart(command, storage, datagramPacket);
+                handler.setStart(command, storage, datagramPacket,db);
                 handler.start();
 
             } catch (IOException | ClassNotFoundException e) {
@@ -114,9 +117,6 @@ public class Server extends Thread{
             server.setFilename(args[1]);
         }
         try {
-            server.loadCollection();
-            server.listen();
-            server.listen();
             server.listen();
         }catch (Exception e)
         {
