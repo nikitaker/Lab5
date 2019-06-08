@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import server.DataBaseConnection;
 import shared.*;
 import shared.FileReader;
@@ -18,15 +20,15 @@ public class Client {
     private InetSocketAddress serverAddress;
     private java.io.Console console = System.console();
     private boolean isAuth = false;
-    private Scanner scanner;
-    private String username;
-    private String password;
+    public String fromGUI;
+    public String username;
+    public String password;
+    public String email;
 
-    private Client(String destinationAddr, int port) throws IOException {
+    public Client(String destinationAddr, int port) throws IOException {
 
         this.serverAddress = new InetSocketAddress(destinationAddr,port);
         this.udpChanel = DatagramChannel.open();
-        scanner = new Scanner(System.in);
         helpAuth();
     }
 
@@ -89,13 +91,13 @@ public class Client {
 
 
 
-    private int start() throws IOException {
+    public void start()  {
         System.out.println("Client is established");
         System.out.println();
         System.out.println("Feed me with your commands:");
         System.out.print((char)27 + "[34m" + "> " + (char)27 + "[37m");
 
-        String input;
+        String input = fromGUI;
         String lastCommand = "";
         String addStr = "";
         boolean commandEnd = true;
@@ -103,244 +105,222 @@ public class Client {
         int nestingJSON = 0;
         ByteArrayOutputStream request = null;
 
-        while (!(input = scanner.nextLine().trim()).toLowerCase().equals("exit")) {
-            if(isAuth) {
-                if (!input.equals("")) {
-                    String command = input.split(" ")[0].toLowerCase();
-                    if (nestingJSON < 0) {
-                        nestingJSON = 0;
-                        lastCommand = "";
-                        addStr = "";
-                        commandEnd = true;
-                    }
 
-                    if (!commandEnd && (lastCommand.equals("add") || lastCommand.equals("add_if_min")
-                            || lastCommand.equals("remove") || lastCommand.equals("add_if_max")
-                            || lastCommand.equals("remove_lower"))) {
-
-                        nestingJSON += charCounter(input, '{');
-                        nestingJSON -= charCounter(input, '}');
-                        correctCommand = true;
-                        addStr += input;
-                        if (nestingJSON == 0) {
-                            commandEnd = true;
-
-                        }
-
-                    } else if (command.equals("add_if_min") && commandEnd) {
-
-                        lastCommand = "add_if_min";
-                        commandEnd = false;
-                        correctCommand = true;
-                        addStr = input.substring(10).trim();
-                        nestingJSON += charCounter(addStr, '{');
-                        nestingJSON -= charCounter(addStr, '}');
-                        if (nestingJSON == 0) {
+                if (isAuth) {
+                    if (!input.equals("")) {
+                        String command = input.split(" ")[0].toLowerCase();
+                        if (nestingJSON < 0) {
+                            nestingJSON = 0;
+                            lastCommand = "";
+                            addStr = "";
                             commandEnd = true;
                         }
 
-                    } else if (command.equals("add") && commandEnd) {
+                        if (!commandEnd && (lastCommand.equals("add") || lastCommand.equals("add_if_min")
+                                || lastCommand.equals("remove") || lastCommand.equals("add_if_max")
+                                || lastCommand.equals("remove_lower"))) {
 
-                        lastCommand = "add";
-                        commandEnd = false;
-                        correctCommand = true;
-                        addStr = input.substring(3).trim();
-                        nestingJSON += charCounter(addStr, '{');
-                        nestingJSON -= charCounter(addStr, '}');
-                        if (nestingJSON == 0) {
+                            nestingJSON += charCounter(input, '{');
+                            nestingJSON -= charCounter(input, '}');
+                            correctCommand = true;
+                            addStr += input;
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+
+                            }
+
+                        } else if (command.equals("add_if_min") && commandEnd) {
+
+                            lastCommand = "add_if_min";
+                            commandEnd = false;
+                            correctCommand = true;
+                            addStr = input.substring(10).trim();
+                            nestingJSON += charCounter(addStr, '{');
+                            nestingJSON -= charCounter(addStr, '}');
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+                            }
+
+                        } else if (command.equals("add") && commandEnd) {
+
+                            lastCommand = "add";
+                            commandEnd = false;
+                            correctCommand = true;
+                            addStr = input.substring(3).trim();
+                            nestingJSON += charCounter(addStr, '{');
+                            nestingJSON -= charCounter(addStr, '}');
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+                            }
+
+                        } else if (command.equals("remove") && commandEnd) {
+
+                            lastCommand = "remove";
+                            commandEnd = false;
+                            correctCommand = true;
+                            addStr = input.substring(6).trim();
+                            nestingJSON += charCounter(addStr, '{');
+                            nestingJSON -= charCounter(addStr, '}');
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+                            }
+
+                        } else if (command.equals("add_if_max") && commandEnd) {
+
+                            lastCommand = "add_if_max";
+                            correctCommand = true;
+                            commandEnd = false;
+                            nestingJSON += charCounter(addStr, '{');
+                            nestingJSON -= charCounter(addStr, '}');
+                            addStr = input.substring(10).trim();
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+                            }
+
+                        } else if (command.equals("remove_lower") && commandEnd) {
+
+                            lastCommand = "remove_lower";
+                            commandEnd = false;
+                            correctCommand = true;
+                            addStr = input.substring(12).trim();
+                            nestingJSON += charCounter(addStr, '{');
+                            nestingJSON -= charCounter(addStr, '}');
+                            if (nestingJSON == 0) {
+                                commandEnd = true;
+                            }
+
+                        } else if (command.equals("show") && commandEnd) {
+                            lastCommand = "show";
+                            correctCommand = true;
+                            request = createRequest("show", null, this.username + " " + this.password);
+                        } else if (command.equals("save") && commandEnd) {
+                            lastCommand = "save";
+                            correctCommand = true;
+                            request = createRequest("save", null, this.username + " " + this.password);
+                        } else if (command.equals("import") && commandEnd) {
+                            lastCommand = "import";
+                            correctCommand = true;
+                            request = createRequest("import", input.substring(6).trim(), this.username + " " + this.password);
+                        } else if (command.equals("info") && commandEnd) {
+                            lastCommand = "info";
+                            correctCommand = true;
+                            request = createRequest("info", null, this.username + " " + this.password);
+                        } else if (command.equals("help") && commandEnd) {
+                            lastCommand = "help";
+                            correctCommand = true;
+                            request = createRequest("help", null, this.username + " " + this.password);
+                        } else {
+                            correctCommand = false;
                             commandEnd = true;
                         }
 
-                    } else if (command.equals("remove") && commandEnd) {
-
-                        lastCommand = "remove";
-                        commandEnd = false;
-                        correctCommand = true;
-                        addStr = input.substring(6).trim();
-                        nestingJSON += charCounter(addStr, '{');
-                        nestingJSON -= charCounter(addStr, '}');
-                        if (nestingJSON == 0) {
-                            commandEnd = true;
+                        if (lastCommand.equals("add") && commandEnd && correctCommand) {
+                            request = createRequest("add", addStr, this.username + " " + this.password);
+                            addStr = "";
+                            correctCommand = true;
+                        } else if (lastCommand.equals("add_if_min") && commandEnd && correctCommand) {
+                            request = createRequest("add_if_min", addStr, this.username + " " + this.password);
+                            addStr = "";
+                            correctCommand = true;
+                        } else if (lastCommand.equals("remove") && commandEnd && correctCommand) {
+                            request = createRequest("remove", addStr, this.username + " " + this.password);
+                            addStr = "";
+                            correctCommand = true;
+                        } else if (lastCommand.equals("add_if_max") && commandEnd && correctCommand) {
+                            request = createRequest("add_if_max", addStr, this.username + " " + this.password);
+                            addStr = "";
+                            correctCommand = true;
+                        } else if (lastCommand.equals("remove_lower") && commandEnd && correctCommand) {
+                            request = createRequest("remove_lower", addStr, this.username + " " + this.password);
+                            addStr = "";
+                            correctCommand = true;
                         }
-
-                    } else if (command.equals("add_if_max") && commandEnd) {
-
-                        lastCommand = "add_if_max";
-                        correctCommand = true;
-                        commandEnd = false;
-                        nestingJSON += charCounter(addStr, '{');
-                        nestingJSON -= charCounter(addStr, '}');
-                        addStr = input.substring(10).trim();
-                        if (nestingJSON == 0) {
-                            commandEnd = true;
-                        }
-
-                    } else if (command.equals("remove_lower") && commandEnd) {
-
-                        lastCommand = "remove_lower";
-                        commandEnd = false;
-                        correctCommand = true;
-                        addStr = input.substring(12).trim();
-                        nestingJSON += charCounter(addStr, '{');
-                        nestingJSON -= charCounter(addStr, '}');
-                        if (nestingJSON == 0) {
-                            commandEnd = true;
-                        }
-
-                    } else if (command.equals("show") && commandEnd) {
-                        lastCommand = "show";
-                        correctCommand = true;
-                        request = createRequest("show", null, this.username + " " + this.password);
-                    } else if (command.equals("save") && commandEnd) {
-                        lastCommand = "save";
-                        correctCommand = true;
-                        request = createRequest("save", null, this.username + " " + this.password);
-                    } else if (command.equals("import") && commandEnd) {
-                        lastCommand = "import";
-                        correctCommand = true;
-                        request = createRequest("import", input.substring(6).trim(), this.username + " " + this.password);
-                    } else if (command.equals("info") && commandEnd) {
-                        lastCommand = "info";
-                        correctCommand = true;
-                        request = createRequest("info", null, this.username + " " + this.password);
-                    } else if (command.equals("help") && commandEnd) {
-                        lastCommand = "help";
-                        correctCommand = true;
-                        request = createRequest("help", null, this.username + " " + this.password);
                     } else {
-                        correctCommand = false;
-                        commandEnd = true;
-                    }
-
-                    if (lastCommand.equals("add") && commandEnd && correctCommand) {
-                        request = createRequest("add", addStr, this.username + " " + this.password);
-                        addStr = "";
-                        correctCommand = true;
-                    } else if (lastCommand.equals("add_if_min") && commandEnd && correctCommand) {
-                        request = createRequest("add_if_min", addStr, this.username + " " + this.password);
-                        addStr = "";
-                        correctCommand = true;
-                    } else if (lastCommand.equals("remove") && commandEnd && correctCommand) {
-                        request = createRequest("remove", addStr, this.username + " " + this.password);
-                        addStr = "";
-                        correctCommand = true;
-                    } else if (lastCommand.equals("add_if_max") && commandEnd && correctCommand) {
-                        request = createRequest("add_if_max", addStr, this.username + " " + this.password);
-                        addStr = "";
-                        correctCommand = true;
-                    } else if (lastCommand.equals("remove_lower") && commandEnd && correctCommand) {
-                        request = createRequest("remove_lower", addStr, this.username + " " + this.password);
-                        addStr = "";
-                        correctCommand = true;
+                        if (commandEnd)
+                            correctCommand = false;
                     }
                 } else {
-                    if (commandEnd)
-                        correctCommand = false;
+                    lastCommand = input.split(" ")[0].toLowerCase().trim();
+                    switch (lastCommand) {
+                        case "help":
+                            helpAuth();
+                            break;
+                        case "register":
+
+                            this.username = this.username.trim().replaceAll("\\s+", "");
+
+                            System.out.println("Enter your email:");
+
+                            correctCommand = true;
+                            request = createRequest("register", null, username + " " + email + " " + DataBaseConnection.getToken());
+                            break;
+
+                        case "login":
+                            System.out.println("Enter your username without any whitespaces:");
+                            this.username = username.trim();
+                            System.out.println("Enter your password:");
+
+                            if (console != null) password = new String(console.readPassword()).trim();
+                            password = password.trim();
+                            this.password = server.DataBaseConnection.encryptString(password);
+                            correctCommand = true;
+                            request = createRequest("login", null, this.username + " " + this.password);
+                            break;
+                        default:
+                            correctCommand = false;
+                    }
                 }
-            } else {
-            lastCommand = input.split(" ")[0].toLowerCase().trim();
-            switch (lastCommand) {
-                case "help":
-                    helpAuth();
-                    break;
-                case "register":
-                    System.out.println("Enter your username without any whitespaces:");
-                    System.out.print((char)27 + "[33m" + "> "+ (char)27 + "[37m");
-                    String username = scanner.nextLine().trim().replaceAll("\\s+", "");
 
-                    while (username.equals("")) {
-                        System.out.println("Your username can't be void :(");
-                        System.out.print((char)27 + "[31m" + "> " + (char)27 + "[37m");
-                        username = scanner.nextLine().trim().replaceAll("\\s+", "");
-                    }
+                if (commandEnd && correctCommand) {
+                    try {
+                        if (request != null) {
+                            ByteBuffer buffer = ByteBuffer.allocate(8192);
+                            buffer.clear();
+                            buffer.put(request.toByteArray());
+                            buffer.flip();
+                            this.udpChanel.send(buffer, serverAddress);
+                        } else {
+                            throw new Exception();
+                        }
 
-                    this.username = username;
-
-                    System.out.println("Enter your email:");
-                    System.out.print((char)27 + "[33m" + "> " + (char)27 + "[37m");
-                    String email = scanner.nextLine();
-
-                    correctCommand = true;
-                    request = createRequest("register", null, username + " " + email + " " + DataBaseConnection.getToken());
-                    break;
-
-                case "login":
-                    System.out.println("Enter your username without any whitespaces:");
-                    System.out.print((char)27 + "[33m" + "> " + (char)27 + "[37m");
-                    this.username = scanner.nextLine().trim();
-
-                    while (this.username.equals("")) {
-                        System.out.println("Your username can't be void :(");
-                        System.out.print((char)27 + "[31m" + "> " + (char)27 + "[37m");
-                        this.username = scanner.nextLine().trim();
-                    }
-
-
-                    System.out.println("Enter your password:");
-                    System.out.print((char)27 + "[33m" + "> " + (char)27 + "[37m");
-
-                    if (console != null) password = new String(console.readPassword()).trim();
-                    else password = scanner.nextLine().trim();
-                    this.password = server.DataBaseConnection.encryptString(password);
-                    correctCommand = true;
-                    request = createRequest("login", null, this.username + " " + this.password);
-                    break;
-                default:
-                    correctCommand = false;
-            }
-        }
-
-            if (commandEnd && correctCommand) {
-                try {
-                    if (request != null) {
                         ByteBuffer buffer = ByteBuffer.allocate(8192);
                         buffer.clear();
-                        buffer.put(request.toByteArray());
-                        buffer.flip();
-                        this.udpChanel.send(buffer,serverAddress);
-                    } else {
-                        throw new Exception();
-                    }
-
-                    ByteBuffer buffer = ByteBuffer.allocate(8192);
-                    buffer.clear();
-                    try {
-                        this.udpChanel.socket().receive(new DatagramPacket(buffer.array(), buffer.array().length));
-                    } catch (SocketTimeoutException e) {
-                        System.err.println("Disconnected from host");
-                        testServerConnection();
-                    }
-
-                    try(ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
-                        ObjectInputStream ois = new ObjectInputStream(bais)) {
-                        Response response = (Response) ois.readObject();
-                        ois.close();
-                        String output = new String(decodeResponse(lastCommand, response));
-                        if (!output.equals("show")) {
-                            System.out.println(output);
+                        try {
+                            this.udpChanel.socket().receive(new DatagramPacket(buffer.array(), buffer.array().length));
+                        } catch (SocketTimeoutException e) {
+                            System.err.println("Disconnected from host");
+                            testServerConnection();
                         }
-                    } catch (IOException e) {
-                        System.out.println("Потеря потока данных");
-                        //e.printStackTrace();
+
+                        try (ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
+                             ObjectInputStream ois = new ObjectInputStream(bais)) {
+                            Response response = (Response) ois.readObject();
+                            ois.close();
+                            String output = new String(decodeResponse(lastCommand, response));
+                            if (!output.equals("show")) {
+                                System.out.println(output);
+                            }
+                        } catch (IOException e) {
+                            System.out.println("Потеря потока данных");
+                            //e.printStackTrace();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("Неправильный JSON");
+
                     }
-
-                } catch (Exception e) {
-                    System.err.println("Неправильный JSON");
-
+                    System.out.print("> ");
+                } else if (commandEnd) {
+                    if (!input.trim().equals("")) {
+                        System.err.println("Команда не определена");
+                    }
+                    System.out.print("> ");
                 }
-                System.out.print("> ");
-            }
-            else if (commandEnd) {
-                if (!input.trim().equals("")) {
-                    System.err.println("Команда не определена");
-                }
-                System.out.print("> ");
-            }
-        }
-        return 0;
+
     }
 
-    private ByteArrayOutputStream createRequest(String command, String data, String credentials) throws IOException {
+    private ByteArrayOutputStream createRequest(String command, String data, String credentials){
         Command c = new Command(command, data, credentials);
 
         if (command.equals("add") || command.equals("add_if_min")
@@ -364,9 +344,9 @@ public class Client {
             oos.flush();
             return outputStream;
         } catch (IOException e) {
-            throw new IOException();
+            e.printStackTrace();
         }
-
+        return null;
 
     }
 
@@ -375,6 +355,7 @@ public class Client {
             try (ByteArrayInputStream bais = new ByteArrayInputStream((byte[])response.getResponse());
                  ObjectInputStream ois = new ObjectInputStream(bais)) {
                 ArrayList<Karlson> storage = (ArrayList<Karlson>) ois.readObject();
+                GUIHand.storage = storage;
                 synchronized (storage) {
                     storage.forEach(System.out::println);
                 }
@@ -386,6 +367,10 @@ public class Client {
             } else if (command.equals("login")) {
                 if ((new String((byte[])response.getResponse())).equals("Logged in")){
                     setIsAuth(true);
+                    try{
+                    Parent root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));
+                    GUIHand.changeScene(root);
+                    }catch (Exception e){e.printStackTrace();}
                     return "~~~~~ Successfully logged in! ~~~~~~".getBytes();}
                 else {return (byte[])response.getResponse();}
             } else {
@@ -400,6 +385,12 @@ public class Client {
             if (current == c)
                 count++;
         return count;
+    }
+
+    public void safeWait(){
+        try {
+            this.wait();
+        }catch (Exception e){}
     }
 
     public void helpAuth() {

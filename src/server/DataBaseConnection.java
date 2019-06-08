@@ -191,7 +191,6 @@ public class DataBaseConnection {
                 buffer.append((char) randomLimitedInt);
             }
 
-            //encrypt random string with MD2
             return buffer.toString();
 
         } catch (Exception e) {
@@ -202,8 +201,8 @@ public class DataBaseConnection {
     public static String encryptString(String input)
     {
         try {
-            // getInstance() method is called with algorithm MD2
-            MessageDigest md = MessageDigest.getInstance("MD2");
+            // getInstance() method is called with algorithm MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
 
             // digest() method is called
             // to calculate message digest of the input string

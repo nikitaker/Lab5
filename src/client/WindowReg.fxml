@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: green;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.WindowReg">
+   <children>
+      <AnchorPane layoutX="-4.0" layoutY="101.0" prefHeight="301.0" prefWidth="606.0" style="-fx-background-color: white;">
+         <children>
+            <Button fx:id="enterButton" layoutX="430.0" layoutY="256.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="156.0" text="Вход" />
+            <TextField fx:id="loginField" layoutX="183.0" layoutY="45.0" prefHeight="25.0" prefWidth="234.0" promptText="Логин" />
+            <Button fx:id="registrationButton" layoutX="213.0" layoutY="151.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="174.0" text="Зарегистрироваться" />
+            <TextField fx:id="emailField" layoutX="183.0" layoutY="96.0" prefHeight="25.0" prefWidth="234.0" promptText="exapmle@99cows.com" />
+         </children>
+      </AnchorPane>
+      <Label layoutX="189.0" layoutY="10.0" prefHeight="91.0" prefWidth="221.0" text="Карлсон" textAlignment="CENTER" textFill="#00b9ff">
+         <font>
+            <Font size="50.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

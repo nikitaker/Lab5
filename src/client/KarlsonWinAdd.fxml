@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWinAdd">
+   <children>
+      <BorderPane layoutX="-1.0" layoutY="-1.0" prefHeight="58.0" prefWidth="600.0">
+         <top>
+            <MenuBar BorderPane.alignment="CENTER">
+              <menus>
+                <Menu mnemonicParsing="false" text="Файл">
+                  <items>
+                        <MenuItem fx:id="save" mnemonicParsing="false" text="Сохранить" />
+                        <MenuItem fx:id="import1" mnemonicParsing="false" text="Импорт" />
+                    <MenuItem fx:id="close" mnemonicParsing="false" text="Закрыть" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Язык">
+                  <items>
+                    <MenuItem fx:id="rus" mnemonicParsing="false" text="Русский" />
+                        <MenuItem fx:id="est" mnemonicParsing="false" text="Эстонский" />
+                        <MenuItem fx:id="fra" mnemonicParsing="false" text="Французский" />
+                        <MenuItem fx:id="his" mnemonicParsing="false" text="Испанский(Гондурас)" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Вид">
+                  <items>
+                    <MenuItem fx:id="mapView" mnemonicParsing="false" text="Карта" />
+                        <MenuItem fx:id="tableView" mnemonicParsing="false" text="Таблица" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="Элемент">
+                    <items>
+                      <MenuItem fx:id="addElem" mnemonicParsing="false" text="Добавить" />
+                        <MenuItem fx:id="deleteElem" mnemonicParsing="false" text="Удалить" />
+                    </items>
+                  </Menu>
+              </menus>
+            </MenuBar>
+         </top>
+         <right>
+            <Text fx:id="karlsonUserText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="88.7294921875" BorderPane.alignment="CENTER" />
+         </right>
+      </BorderPane>
+      <TextField fx:id="nameFiels" layoutX="50.0" layoutY="57.0" promptText="Имя" />
+      <TextField fx:id="speedField" layoutX="50.0" layoutY="121.0" promptText="Скорость" />
+      <TextField fx:id="colourField" layoutX="50.0" layoutY="188.0" promptText="Цвет Одежды" />
+      <TextField fx:id="clothesField" layoutX="50.0" layoutY="257.0" promptText="Имя Одежды" />
+      <Button fx:id="addButton" layoutX="309.0" layoutY="121.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="171.0" text="Добавить" />
+      <Button fx:id="addMaxButton" layoutX="309.0" layoutY="188.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="171.0" text="Добавить если MAX" />
+      <Button fx:id="addMinButtin" layoutX="309.0" layoutY="257.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="171.0" text="Добавить если MIN" />
+   </children>
+</AnchorPane>

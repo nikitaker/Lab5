@@ -3,16 +3,19 @@ package server;
 import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
+import javax.activation.*;
+
 
 class JavaMail {
     static final String ENCODING = "UTF-8";
+
 
     public static void registration(String email, String reg_token){
         String subject = "Confirm registration";
         String content = "Random Password: " + reg_token +". Don't show it to anyone!";
         String smtpHost="mail.0hcow.com";
-        String from= "sadiya.nooriya@0hcow.com";
-        String login="sadiya.nooriya";
+        String from= "zaryan.aditya@99cows.com";
+        String login="zaryan.aditya";
         String password="";
         String smtpPort="25";
         try {
