@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
@@ -99,6 +100,18 @@ public class KarlsonWin {
 
         });
 
+        mapView.setOnAction(actionEvent -> {
+            try {
+                Parent root;
+                if(GUIHand.laguage.equals("fra")){
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
+                else{
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){e.printStackTrace();}
+        });
+
 
 
         est.setOnAction(actionEvent -> {GUIHand.laguage = "est";
@@ -125,6 +138,12 @@ public class KarlsonWin {
         his.setOnAction(actionEvent -> {
             GUIHand.laguage = "his";
             try {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Внимание");
+                alert.setHeaderText("Язык: Испания(Гондурас)");
+                alert.setContentText("А ты Пидорас");
+                alert.showAndWait();
+
                 Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinHis.fxml"));
                 Stage stage = (Stage) mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage, root);

@@ -141,6 +141,18 @@ public class KarlsonWinAdd {
             }catch (Exception e){e.printStackTrace();}
         });
 
+        mapView.setOnAction(actionEvent -> {
+            try {
+                Parent root;
+                if(GUIHand.laguage.equals("fra")){
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
+                else{
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){e.printStackTrace();}
+        });
+
 
         tableView.setOnAction(actionEvent -> {
             GUIHand.show();

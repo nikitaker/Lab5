@@ -25,6 +25,10 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
         return dateTime;
     }
 
+    public int getOwnerId(){
+        return (int)Math.round(Math.log(owner.hashCode())*10);
+    }
+
     private ZonedDateTime dateTime;
     String owner = "all";
     State state;

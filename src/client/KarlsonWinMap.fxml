@@ -10,6 +10,7 @@
 
 <AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWinMap">
    <children>
+      <Text fx:id="karlsonInfo" layoutX="449.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Info" wrappingWidth="98.0" />
       <BorderPane layoutX="-1.0" layoutY="-1.0" prefHeight="58.0" prefWidth="600.0">
          <top>
             <MenuBar BorderPane.alignment="CENTER">
@@ -48,10 +49,6 @@
             <Text fx:id="karlsonUserText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="88.7294921875" BorderPane.alignment="CENTER" />
          </right>
       </BorderPane>
-      <AnchorPane layoutY="28.0" prefHeight="372.0" prefWidth="372.0">
-         <children>
-            <Ellipse fill="DODGERBLUE" layoutX="185.0" layoutY="189.0" radiusX="20.0" radiusY="29.0" stroke="BLACK" strokeType="INSIDE" />
-         </children>
-      </AnchorPane>
+      <AnchorPane layoutY="28.0" prefHeight="372.0" prefWidth="372.0" />
    </children>
 </AnchorPane>

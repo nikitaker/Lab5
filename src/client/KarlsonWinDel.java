@@ -86,6 +86,17 @@ public class KarlsonWinDel {
 
 
 
+        mapView.setOnAction(actionEvent -> {
+            try {
+                Parent root;
+                if(GUIHand.laguage.equals("fra")){
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
+                else{
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){e.printStackTrace();}
+        });
 
         est.setOnAction(actionEvent -> {GUIHand.laguage = "est";
             try {
