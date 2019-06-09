@@ -2,14 +2,14 @@ package client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import shared.Karlson;
 
-public class KarlsonWinAdd {
+public class KarlsonWinDel {
 
     @FXML
     private MenuItem import1;
@@ -30,9 +30,6 @@ public class KarlsonWinAdd {
     private MenuItem tableView;
 
     @FXML
-    private Button addButton;
-
-    @FXML
     private MenuItem rus;
 
     @FXML
@@ -42,31 +39,29 @@ public class KarlsonWinAdd {
     private MenuItem addElem;
 
     @FXML
-    private TextField clothesField;
-
-    @FXML
-    private Button addMinButtin;
-
-    @FXML
     private MenuItem fra;
 
     @FXML
-    private TextField nameFiels;
+    private Text respondeText;
 
     @FXML
     private TextField speedField;
 
     @FXML
-    private TextField colourField;
-
-    @FXML
-    private Button addMaxButton;
+    private TextField nameField;
 
     @FXML
     private MenuItem deleteElem;
 
     @FXML
+    private Button removeButton;
+
+    @FXML
     private MenuItem close;
+
+    @FXML
+    private Button removeLowButton;
+
 
     @FXML
     private Parent mainroot;
@@ -74,33 +69,41 @@ public class KarlsonWinAdd {
     @FXML
     void initialize(){
 
-        addButton.setOnAction(actionEvent -> {
-            String s = "add {\""+ speedField.getText()+ "\":{\"name\":\""+nameFiels.getText()+"\",\"flyspeed\":\"" +
-                    speedField.getText()+"\",\"clothes\":{\"name\":\""+ clothesField.getText() + "\",\"color\":\""+
-                    colourField.getText()+"\"}}}";
+        removeButton.setOnAction(actionEvent -> {
+            String s = "remove {\""+ speedField.getText()+ "\":{\"name\":\""+ nameField.getText() + "\",\"flyspeed\":\"" +
+                    speedField.getText()+"\"}}";
             GUIHand.add(s);
+            respondeText.setText(GUIHand.output);
         });
+
+        removeLowButton.setOnAction(actionEvent -> {
+            String s = "remove_lower {\""+ speedField.getText()+ "\":{\"name\":\""+ nameField.getText() +"\",\"flyspeed\":\"" +
+                    speedField.getText()+"\"}}";
+            GUIHand.add(s);
+            respondeText.setText(GUIHand.output);
+        });
+
 
 
 
 
         est.setOnAction(actionEvent -> {GUIHand.laguage = "est";
             try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddEst.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDelEst.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){}
         });
         fra.setOnAction(actionEvent -> {GUIHand.laguage = "fra";
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));
-                Stage stage = (Stage)mainroot.getScene().getWindow();
-                GUIHand.changeScene(stage,root);
-            }catch (Exception e){}
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDelFra.fxml"));
+            Stage stage = (Stage)mainroot.getScene().getWindow();
+            GUIHand.changeScene(stage,root);
+        }catch (Exception e){}
         });
         rus.setOnAction(actionEvent -> {GUIHand.laguage = "rus";
             try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){}
@@ -108,7 +111,7 @@ public class KarlsonWinAdd {
         his.setOnAction(actionEvent -> {
             GUIHand.laguage = "his";
             try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddHis.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));
                 Stage stage = (Stage) mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage, root);
             } catch (Exception e) {

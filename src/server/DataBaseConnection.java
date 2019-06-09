@@ -88,13 +88,15 @@ public class DataBaseConnection {
         preStatement.setDate(5,Date.valueOf(karlson.getDateTime().toLocalDate()));
         preStatement.setInt(6,skillId);
         preStatement.executeUpdate();
-        if (karlson.getClothes().getName() != null) {
-            PreparedStatement statementSkills = connection.prepareStatement("INSERT INTO clothes VALUES (?, ?, ?);");
-            statementSkills.setInt(1, skillId);
-            statementSkills.setString(2, karlson.getClothes().getName());
-            statementSkills.setString(3, karlson.getClothes().getColor());
-            statementSkills.executeUpdate();
-        }
+        try {
+            if (karlson.getClothes().getName() != null) {
+                PreparedStatement statementSkills = connection.prepareStatement("INSERT INTO clothes VALUES (?, ?, ?);");
+                statementSkills.setInt(1, skillId);
+                statementSkills.setString(2, karlson.getClothes().getName());
+                statementSkills.setString(3, karlson.getClothes().getColor());
+                statementSkills.executeUpdate();
+            }
+        } catch (NullPointerException e){e.printStackTrace();}
     }
 
     public void savePersons(ConcurrentHashMap<Long,Karlson>  map) {

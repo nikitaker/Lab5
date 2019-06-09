@@ -71,7 +71,10 @@ public class CommandHandler extends Thread {
     public Object handleCommand(Command com, ConcurrentHashMap<Long,Karlson> storage, DataBaseConnection db) {
 
         Object credentials = com.getCredentials();
-        if (com.getCredentials() != null && ((String) credentials).split(" ").length > 2) {
+        String command = com.getCommand();
+        Object data = com.getData();
+
+        if (com.getCredentials() != null && command.toLowerCase().equals("register")) {
             username = ((String) credentials).split(" ")[0];
             mail = ((String) credentials).split(" ")[1];
             password = ((String) credentials).split(" ")[2];
@@ -79,9 +82,6 @@ public class CommandHandler extends Thread {
             username = ((String) credentials).split(" ")[0];
             password = ((String) credentials).split(" ")[1];
         }
-
-            String command = com.getCommand();
-            Object data = com.getData();
 
             byte[] buffer;
 
@@ -250,7 +250,7 @@ public class CommandHandler extends Thread {
     }
 
     public byte[] remove(ConcurrentHashMap<Long,Karlson> storage, Karlson karlson, DataBaseConnection db, String username){
-        if (storage.entrySet().removeIf(x -> storage.contains(karlson) && (username.equals(x.getValue().getOwner()) || x.getValue().getOwner().equals("all")))) {
+        if (storage.entrySet().removeIf(x -> (x.getValue().getFlyspeed().equals(karlson.getFlyspeed())) && (username.equals(x.getValue().getOwner()) || x.getValue().getOwner().equals("all")))) {
             db.removePerson(username, karlson);
             System.out.println("A human " + karlson.toString() + " has been deleted");
             return ("A human " + karlson.toString() + " has been deleted :(").getBytes();

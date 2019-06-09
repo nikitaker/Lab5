@@ -18,6 +18,11 @@ public class GUIHand extends Application {
 
     static ActionEvent actionEvent1;
 
+    static String username;
+    static String password;
+    static String output;
+    static String laguage;
+
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("Window.fxml"));
         Scene scene = new Scene(root);
@@ -40,8 +45,11 @@ public class GUIHand extends Application {
     static void login(Window window,ActionEvent actionEvent) {
         actionEvent1 = actionEvent;
         client.username = window.getLoginField();
+        username = window.getLoginField();
         client.password = window.getPasswordField();
+        password = window.getPasswordField();
         client.fromGUI = "login";
+        laguage ="rus";
         client.start();
     }
 
@@ -105,6 +113,8 @@ public class GUIHand extends Application {
 
     static void add(String s){
         client.fromGUI = s;
+        client.username = username;
+        client.password = password;
         client.start();
     }
 }

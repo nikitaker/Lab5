@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWin">
+<AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWinDel">
    <children>
       <BorderPane layoutX="-1.0" layoutY="-1.0" prefHeight="58.0" prefWidth="600.0">
          <top>
@@ -47,18 +47,14 @@
             <Text fx:id="karlsonUserText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="88.7294921875" BorderPane.alignment="CENTER" />
          </right>
       </BorderPane>
-      <TableView fx:id="karlsonTable" layoutX="14.0" layoutY="44.0" prefHeight="336.0" prefWidth="474.0">
-        <columns>
-          <TableColumn fx:id="karlsonName" prefWidth="75.0" text="Имя" />
-          <TableColumn fx:id="karlsonSpeed" prefWidth="60.0" text="Скорость" />
-            <TableColumn fx:id="karlsonDate" prefWidth="94.0" text="Дата" />
-            <TableColumn fx:id="karlsonUsername" prefWidth="91.0" text="Пользователь" />
-            <TableColumn fx:id="karlsonClothes" prefWidth="210.0" text="Одежда">
-               <columns>
-                  <TableColumn fx:id="clothesName" prefWidth="83.0" text="Название" />
-                  <TableColumn fx:id="clothesColor" prefWidth="67.0" text="Цвет" />
-               </columns></TableColumn>
-        </columns>
-      </TableView>
+      <TextField fx:id="nameField" layoutX="50.0" layoutY="121.0" promptText="Имя" />
+      <TextField fx:id="speedField" layoutX="50.0" layoutY="188.0" promptText="Скорость" />
+      <Button fx:id="removeButton" layoutX="309.0" layoutY="121.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="171.0" text="Удалить" />
+      <Button fx:id="removeLowButton" layoutX="309.0" layoutY="188.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="171.0" text="Удалить всех меньше заданной скорости" textAlignment="CENTER" wrapText="true" />
+      <Text fx:id="respondeText" layoutX="166.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="197.0">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Text>
    </children>
 </AnchorPane>

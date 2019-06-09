@@ -60,7 +60,9 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
     }
 
     public Clothes getClothes() {
-        return clothes;
+        if(clothes != null){
+        return clothes;}
+        else {return new Clothes("","");}
     }
 
     void swipeHand(Object obj){

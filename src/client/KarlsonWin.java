@@ -1,14 +1,17 @@
 package client;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import shared.Clothes;
 import shared.Karlson;
 
 public class KarlsonWin {
@@ -21,7 +24,15 @@ public class KarlsonWin {
     private MenuItem mapView;
 
     @FXML
-    private TableColumn<?, ?> karlsonName;
+    private TableColumn<Karlson, String> karlsonName;
+
+    @FXML
+    private TableColumn<Karlson, String> clothesColor;
+    @FXML
+    private TableColumn<Karlson, String> clothesName;
+
+    @FXML
+    private Text karlsonUserText;
 
     @FXML
     private MenuItem est;
@@ -36,7 +47,7 @@ public class KarlsonWin {
     private MenuItem rus;
 
     @FXML
-    private TableColumn<?, ?> karlsonUsername;
+    private TableColumn<Karlson, String> karlsonUsername;
 
     @FXML
     private MenuItem his;
@@ -51,16 +62,16 @@ public class KarlsonWin {
     private TableView<Karlson> karlsonTable;
 
     @FXML
-    private TableColumn<?, ?> karlsonSpeed;
+    private TableColumn<Karlson, Long> karlsonSpeed;
 
     @FXML
-    private TableColumn<?, ?> karlsonDate;
+    private TableColumn<Karlson, String> karlsonDate;
 
     @FXML
     private MenuItem deleteElem;
 
     @FXML
-    private TableColumn<?, ?> karlsonClothes;
+    private TableColumn<Karlson, String> karlsonClothes;
 
     @FXML
     private MenuItem close;
@@ -68,19 +79,80 @@ public class KarlsonWin {
     @FXML
     private Parent mainroot;
 
+
+
     @FXML
     void initialize(){
 
-
-
         tableView.setOnAction(actionEvent -> {
             GUIHand.show();
+            karlsonName.setCellValueFactory(new PropertyValueFactory<>("name"));
+            karlsonSpeed.setCellValueFactory(new PropertyValueFactory<>("flyspeed"));
+            karlsonDate.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
+            karlsonUsername.setCellValueFactory(new PropertyValueFactory<>("owner"));
+            try {
+                clothesName.setCellValueFactory(cellData -> Bindings.createObjectBinding(() -> cellData.getValue().getClothes().getName()));
+                clothesColor.setCellValueFactory(cellData -> Bindings.createObjectBinding(() -> cellData.getValue().getClothes().getColor()));
+            }catch (NullPointerException e){}
+
+            karlsonTable.setItems(FXCollections.observableArrayList(GUIHand.storage));
+
+        });
+
+
+
+        est.setOnAction(actionEvent -> {GUIHand.laguage = "est";
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinEst.fxml"));
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){}
+        });
+        fra.setOnAction(actionEvent -> {GUIHand.laguage = "fra";
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinFra.fxml"));
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){}
+        });
+        rus.setOnAction(actionEvent -> {GUIHand.laguage = "rus";
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){}
+        });
+        his.setOnAction(actionEvent -> {
+            GUIHand.laguage = "his";
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinHis.fxml"));
+                Stage stage = (Stage) mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage, root);
+            } catch (Exception e) {
+            }
+        });
+
+        karlsonUserText.setText(GUIHand.username);
+
+        deleteElem.setOnAction(actionEvent -> {
+            try {
+                Parent root;
+                if(GUIHand.laguage.equals("fra")){
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDelFra.fxml"));}
+                else{
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));}
+                Stage stage = (Stage)mainroot.getScene().getWindow();
+                GUIHand.changeScene(stage,root);
+            }catch (Exception e){e.printStackTrace();}
         });
 
         addElem.setOnAction(actionEvent -> {
             try {
-                System.out.println("KOK");
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
+                Parent root;
+                if(GUIHand.laguage.equals("fra")){
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));}
+                else{
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));}
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}

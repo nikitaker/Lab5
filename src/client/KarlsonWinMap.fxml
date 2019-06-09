@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
@@ -7,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWin">
+<AnchorPane fx:id="mainroot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.KarlsonWinMap">
    <children>
       <BorderPane layoutX="-1.0" layoutY="-1.0" prefHeight="58.0" prefWidth="600.0">
          <top>
@@ -47,18 +48,10 @@
             <Text fx:id="karlsonUserText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="88.7294921875" BorderPane.alignment="CENTER" />
          </right>
       </BorderPane>
-      <TableView fx:id="karlsonTable" layoutX="14.0" layoutY="44.0" prefHeight="336.0" prefWidth="474.0">
-        <columns>
-          <TableColumn fx:id="karlsonName" prefWidth="75.0" text="Имя" />
-          <TableColumn fx:id="karlsonSpeed" prefWidth="60.0" text="Скорость" />
-            <TableColumn fx:id="karlsonDate" prefWidth="94.0" text="Дата" />
-            <TableColumn fx:id="karlsonUsername" prefWidth="91.0" text="Пользователь" />
-            <TableColumn fx:id="karlsonClothes" prefWidth="210.0" text="Одежда">
-               <columns>
-                  <TableColumn fx:id="clothesName" prefWidth="83.0" text="Название" />
-                  <TableColumn fx:id="clothesColor" prefWidth="67.0" text="Цвет" />
-               </columns></TableColumn>
-        </columns>
-      </TableView>
+      <AnchorPane layoutY="28.0" prefHeight="372.0" prefWidth="372.0">
+         <children>
+            <Ellipse fill="DODGERBLUE" layoutX="185.0" layoutY="189.0" radiusX="20.0" radiusY="29.0" stroke="BLACK" strokeType="INSIDE" />
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

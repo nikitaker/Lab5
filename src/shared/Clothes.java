@@ -13,11 +13,15 @@ public class Clothes implements Serializable {
     }
 
     public String getName() {
-        return name;
+        if (name != null){
+        return name;}
+        else {return "";}
     }
 
     public String getColor() {
-        return color;
+        if (color != null){
+        return color;}
+        else {return "";}
     }
 
     void dressUp(){

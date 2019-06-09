@@ -192,46 +192,46 @@ public class Client {
                         } else if (command.equals("show") && commandEnd) {
                             lastCommand = "show";
                             correctCommand = true;
-                            request = createRequest("show", null, this.username + " " + this.password);
+                            request = createRequest("show", null, username + " " + password);
                         } else if (command.equals("save") && commandEnd) {
                             lastCommand = "save";
                             correctCommand = true;
-                            request = createRequest("save", null, this.username + " " + this.password);
+                            request = createRequest("save", null, username + " " + password);
                         } else if (command.equals("import") && commandEnd) {
                             lastCommand = "import";
                             correctCommand = true;
-                            request = createRequest("import", input.substring(6).trim(), this.username + " " + this.password);
+                            request = createRequest("import", input.substring(6).trim(), username + " " + password);
                         } else if (command.equals("info") && commandEnd) {
                             lastCommand = "info";
                             correctCommand = true;
-                            request = createRequest("info", null, this.username + " " + this.password);
+                            request = createRequest("info", null, username + " " + password);
                         } else if (command.equals("help") && commandEnd) {
                             lastCommand = "help";
                             correctCommand = true;
-                            request = createRequest("help", null, this.username + " " + this.password);
+                            request = createRequest("help", null, username + " " + password);
                         } else {
                             correctCommand = false;
                             commandEnd = true;
                         }
 
                         if (lastCommand.equals("add") && commandEnd && correctCommand) {
-                            request = createRequest("add", addStr, this.username + " " + this.password);
+                            request = createRequest("add", addStr, username + " " + password);
                             addStr = "";
                             correctCommand = true;
                         } else if (lastCommand.equals("add_if_min") && commandEnd && correctCommand) {
-                            request = createRequest("add_if_min", addStr, this.username + " " + this.password);
+                            request = createRequest("add_if_min", addStr, username + " " + password);
                             addStr = "";
                             correctCommand = true;
                         } else if (lastCommand.equals("remove") && commandEnd && correctCommand) {
-                            request = createRequest("remove", addStr, this.username + " " + this.password);
+                            request = createRequest("remove", addStr, username + " " + password);
                             addStr = "";
                             correctCommand = true;
                         } else if (lastCommand.equals("add_if_max") && commandEnd && correctCommand) {
-                            request = createRequest("add_if_max", addStr, this.username + " " + this.password);
+                            request = createRequest("add_if_max", addStr, username + " " + password);
                             addStr = "";
                             correctCommand = true;
                         } else if (lastCommand.equals("remove_lower") && commandEnd && correctCommand) {
-                            request = createRequest("remove_lower", addStr, this.username + " " + this.password);
+                            request = createRequest("remove_lower", addStr, username + " " + password);
                             addStr = "";
                             correctCommand = true;
                         }
@@ -248,9 +248,7 @@ public class Client {
                         case "register":
 
                             this.username = this.username.trim().replaceAll("\\s+", "");
-
                             System.out.println("Enter your email:");
-
                             correctCommand = true;
                             request = createRequest("register", null, username + " " + email + " " + DataBaseConnection.getToken());
                             break;
@@ -259,12 +257,9 @@ public class Client {
                             System.out.println("Enter your username without any whitespaces:");
                             this.username = username.trim();
                             System.out.println("Enter your password:");
-
-                            if (console != null) password = new String(console.readPassword()).trim();
-                            password = password.trim();
                             this.password = server.DataBaseConnection.encryptString(password);
                             correctCommand = true;
-                            request = createRequest("login", null, this.username + " " + this.password);
+                            request = createRequest("login", null, username + " " + password);
                             break;
                         default:
                             correctCommand = false;
@@ -299,6 +294,7 @@ public class Client {
                             String output = new String(decodeResponse(lastCommand, response));
                             if (!output.equals("show")) {
                                 System.out.println(output);
+                                GUIHand.output = output;
                             }
                         } catch (IOException e) {
                             System.out.println("Потеря потока данных");
@@ -387,11 +383,6 @@ public class Client {
         return count;
     }
 
-    public void safeWait(){
-        try {
-            this.wait();
-        }catch (Exception e){}
-    }
 
     public void helpAuth() {
         System.out.println("register - register a new user\n" +
@@ -413,7 +404,7 @@ public class Client {
             sender.start();
         } catch (Exception e) {
             System.err.println("Oh no, something bad has happened!");
-            //e.printStackTrace();
+            e.printStackTrace();
             showUsage();
         }
     }
