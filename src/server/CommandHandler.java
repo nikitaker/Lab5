@@ -120,6 +120,12 @@ public class CommandHandler extends Thread {
                 case "save":
                     buffer = save(storage);
                     break;
+                case "loadhash":
+                    ConcurrentHashMap<Long,Karlson> hashMap = new ConcurrentHashMap<Long,Karlson>();
+                    for (Karlson karlson:(ArrayList<Karlson>) data) {
+                        hashMap.put(karlson.getFlyspeed(),karlson); }
+                    buffer = save(hashMap);
+                        break;
                 case "import":
                     buffer = import1(storage, (ConcurrentHashMap<Long,Karlson>) data, db, username);
                     break;

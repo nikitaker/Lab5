@@ -48,7 +48,7 @@ public class Server extends Thread{
         System.out.println("-- Running Server at " + InetAddress.getLocalHost() + " --");
 
         while (true) {
-
+            db.loadPersons(storage);
             DatagramPacket datagramPacket = new DatagramPacket(buf,buf.length);
             udpSocket.receive(datagramPacket);
             InetAddress address = datagramPacket.getAddress();
@@ -63,7 +63,7 @@ public class Server extends Thread{
 
                 System.out.println("-- Client's input: " + command.getCommand());
 
-
+                db.loadPersons(storage);
                 handler = new CommandHandler();
                 handler.setStart(command, storage, datagramPacket,db);
                 handler.start();

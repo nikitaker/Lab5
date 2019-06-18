@@ -4,21 +4,16 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import server.DataBaseConnection;
 import shared.*;
 import shared.FileReader;
 
 
 public class Client {
-    private DatagramChannel udpChanel;
-    private InetSocketAddress serverAddress;
+    DatagramChannel udpChanel;
+    InetSocketAddress serverAddress;
     private java.io.Console console = System.console();
     private boolean isAuth = false;
     public String fromGUI;
@@ -276,6 +271,7 @@ public class Client {
                             buffer.flip();
                             this.udpChanel.send(buffer, serverAddress);
                         } else {
+                            GUIHand.alertJSON();
                             throw new Exception();
                         }
 
@@ -303,7 +299,7 @@ public class Client {
                         }
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                         System.err.println("Неправильный JSON");
 
                     }
@@ -317,7 +313,7 @@ public class Client {
 
     }
 
-    private ByteArrayOutputStream createRequest(String command, String data, String credentials){
+    ByteArrayOutputStream createRequest(String command, String data, String credentials){
         Command c = new Command(command, data, credentials);
 
         if (command.equals("add") || command.equals("add_if_min")
@@ -334,7 +330,6 @@ public class Client {
                 return null;
             }
         }
-
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(outputStream)){
             oos.writeObject(c);

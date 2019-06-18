@@ -8,14 +8,21 @@ import javafx.scene.Group;
 import javafx.scene.*;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import shared.Comands;
+import shared.Command;
 import shared.Karlson;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GUIHand extends Application {
 
     static public ArrayList<Karlson> storage;
+    static public ArrayList<Karlson> memoryStorage = new ArrayList<Karlson>();
 
     static ActionEvent actionEvent1;
 
@@ -26,11 +33,23 @@ public class GUIHand extends Application {
 
     public static void alert(){
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Внимание");
+        alert.setTitle("Warning");
         alert.setHeaderText("Сервер недоступен");
         alert.showAndWait();
         System.exit(1);
     }
+    public static void alertJSON(){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Внимание");
+        alert.setHeaderText("Неверный ввод");
+        alert.showAndWait();
+    }
+
+    public static void generateStorage(){
+        memoryStorage.clear();
+        for(Karlson karlson:storage){memoryStorage.add(new Karlson(karlson));}
+    }
+
     public void start(Stage primaryStage) throws Exception{
 
         try {
@@ -112,14 +131,31 @@ public class GUIHand extends Application {
         }
     }
 
+    static void import1(String path){
+        client.fromGUI = "import " + path;
+        client.start();
+    }
+
     static void show(){
         client.fromGUI = "show";
         client.start();
     }
 
     static void save(){
-        client.fromGUI = "save";
-        client.start();
+        Command c = new Command("loadHash", null, username + " " + password);
+        c.setData(storage);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(outputStream)){
+            oos.writeObject(c);
+            oos.flush();
+            ByteBuffer buffer = ByteBuffer.allocate(8192);
+            buffer.clear();
+            buffer.put(outputStream.toByteArray());
+            buffer.flip();
+            client.udpChanel.send(buffer, client.serverAddress);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     static void add(String s){

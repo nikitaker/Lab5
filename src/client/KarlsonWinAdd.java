@@ -78,12 +78,15 @@ public class KarlsonWinAdd {
     void initialize(){
         est.setOnAction(actionEvent -> {
             GUIHand.laguage = "est";
+            initialize();
         });
         fra.setOnAction(actionEvent -> {
             GUIHand.laguage = "fra";
+            initialize();
         });
         rus.setOnAction(actionEvent -> {
             GUIHand.laguage = "rus";
+            initialize();
         });
         his.setOnAction(actionEvent -> {
             GUIHand.laguage = "his";
@@ -94,6 +97,7 @@ public class KarlsonWinAdd {
                 alert.setContentText("А ты Пидорас");
                 alert.showAndWait();
             } catch (Exception e){}
+            initialize();
         });
 
         Locale locale;
@@ -105,7 +109,7 @@ public class KarlsonWinAdd {
                 locale = new Locale("et");
                 break;
             case "his":
-                locale = new Locale("es");
+                locale = new Locale("es","HN");
                 break;
             default:
                 locale = new Locale("ru");
@@ -127,7 +131,13 @@ public class KarlsonWinAdd {
         addElem.getParentMenu().setText(bundle.getString("menu_elem"));
         addElem.setText(bundle.getString("menu_add"));
         deleteElem.setText(bundle.getString("menu_dell"));
-
+        nameFiels.setPromptText(bundle.getString("table_name"));
+        speedField.setPromptText(bundle.getString("table_speed"));
+        colourField.setPromptText(bundle.getString("table_color"));
+        clothesField.setPromptText(bundle.getString("table_clothes"));
+        addButton.setText(bundle.getString("menu_add"));
+        addMaxButton.setText(bundle.getString("menu_add_max"));
+        addMinButtin.setText(bundle.getString("menu_add_min"));
 
 
 
@@ -147,11 +157,7 @@ public class KarlsonWinAdd {
 
         deleteElem.setOnAction(actionEvent -> {
             try {
-                Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDelFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));}
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -159,11 +165,7 @@ public class KarlsonWinAdd {
 
         addElem.setOnAction(actionEvent -> {
             try {
-                Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));}
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -171,11 +173,7 @@ public class KarlsonWinAdd {
 
         mapView.setOnAction(actionEvent -> {
             try {
-                Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -186,13 +184,17 @@ public class KarlsonWinAdd {
             GUIHand.show();
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));}
+                root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
+        });
+        import1.setOnAction(actionEvent -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("import");
+            dialog.setHeaderText("Enter path to JSON file.");
+            dialog.showAndWait();
+            GUIHand.import1(dialog.getEditor().getText());
         });
 
         save.setOnAction(actionEvent -> GUIHand.save());

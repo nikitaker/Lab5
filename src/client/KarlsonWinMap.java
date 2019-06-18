@@ -9,11 +9,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -99,24 +102,51 @@ public class KarlsonWinMap {
             System.out.println(karlson.getName());
             Ellipse ellipse = new Ellipse();
             Circle circle = new Circle();
-            double x = karlson.x;
-            double y = karlson.y;
-            ellipse.setCenterX(x*500);
-            ellipse.setCenterY(y*500);
-            circle.setCenterX(x*500 - (Math.log(karlson.getFlyspeed()))*8);
-            circle.setCenterY(y*500);
+            Circle knopka = new Circle();
+            Line line = new Line();
+            Line line1 = new Line();
+            double x = karlson.getX();
+            double y = karlson.getY();
+
+            line.setStrokeWidth(4);
+            line1.setStrokeWidth(4);
+            line.setStartX(x*10);
+            line.setStartY(y*10 -(Math.log(karlson.getFlyspeed()))*5);
+            line1.setStartX(x*10);
+            line1.setStartY(y*10 - (Math.log(karlson.getFlyspeed()))*5);
+            line.setEndX(x*10 - (Math.log(karlson.getFlyspeed()))*5);
+            line.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*5);
+            line1.setEndX(x*10 + (Math.log(karlson.getFlyspeed()))*5);
+            line1.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*5);
+            line.setUserData(karlson.getFlyspeed());
+            line1.setUserData(karlson.getFlyspeed());
+
+            ellipse.setCenterX(x*10);
+            ellipse.setCenterY(y*10);
+            knopka.setCenterX(x*10);
+            knopka.setCenterY(y*10 + (Math.log(karlson.getFlyspeed()))*5);
+            knopka.setRadius((Math.log(karlson.getFlyspeed()))*2);
+            knopka.setFill(Color.RED);
+            knopka.setUserData(karlson.getFlyspeed());
+            circle.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*8);
+            circle.setCenterY(y*10);
             ellipse.setRadiusX((Math.log(karlson.getFlyspeed()))*8);
             ellipse.setRadiusY((Math.log(karlson.getFlyspeed()))*5);
             circle.setRadius((Math.log(karlson.getFlyspeed()))*5);
             Shape shape = Shape.union(ellipse,circle);
-            shape.setFill(javafx.scene.paint.Color.rgb(karlson.getOwnerId()+20,karlson.getOwnerId(),karlson.getOwnerId()+65));
+            shape.setFill(javafx.scene.paint.Color.rgb(karlson.getOwnerId()+20,karlson.getOwnerId()+65,karlson.getOwnerId()+65));
             shape.setUserData(karlson.getFlyspeed());
+            shape.setStroke(Color.PURPLE);
+            shape.setStrokeWidth(3);
             shapes.add(shape);
             mainroot.getChildren().add(shape);
+            mainroot.getChildren().add(knopka);
+            mainroot.getChildren().add(line);
+            mainroot.getChildren().add(line1);
         }
 
 
-        for (Shape shape:shapes) {
+        for (Node shape:mainroot.getChildren()) {
             shape.setOnMouseClicked(mouseEvent -> {
                 applyEffect(shape);
                 long ln = (Long) shape.getUserData();
@@ -130,25 +160,17 @@ public class KarlsonWinMap {
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
         est.setOnAction(actionEvent -> {
             GUIHand.laguage = "est";
+            initialize();
         });
         fra.setOnAction(actionEvent -> {
             GUIHand.laguage = "fra";
+            initialize();
         });
         rus.setOnAction(actionEvent -> {
             GUIHand.laguage = "rus";
+            initialize();
         });
         his.setOnAction(actionEvent -> {
             GUIHand.laguage = "his";
@@ -159,6 +181,7 @@ public class KarlsonWinMap {
                 alert.setContentText("А ты Пидорас");
                 alert.showAndWait();
             } catch (Exception e){}
+            initialize();
         });
 
         Locale locale;
@@ -196,24 +219,24 @@ public class KarlsonWinMap {
         karlsonUserText.setText(GUIHand.username);
 
         deleteElem.setOnAction(actionEvent -> {
-            try {
-                Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDelFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));}
+            try { Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
         });
 
+        import1.setOnAction(actionEvent -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("import");
+            dialog.setHeaderText("Enter path to JSON file.");
+            dialog.showAndWait();
+            GUIHand.import1(dialog.getEditor().getText());
+        });
+
         addElem.setOnAction(actionEvent -> {
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -222,10 +245,7 @@ public class KarlsonWinMap {
         mapView.setOnAction(actionEvent -> {
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -235,10 +255,7 @@ public class KarlsonWinMap {
             GUIHand.show();
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));}
+                root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}

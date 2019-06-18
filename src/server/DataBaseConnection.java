@@ -44,6 +44,8 @@ public class DataBaseConnection {
                 String name = result.getString("name");
                 long flyspeed = result.getLong("flyspeed");
                 int clothesId = result.getInt("clothesId");
+                int x = result.getInt("x");
+                int y = result.getInt("y");
                 String date = result.getString("date");
                 if (date != null) {
                     time = ZonedDateTime.parse(result.getString("date").replace(' ','T')+".147Z");
@@ -51,7 +53,8 @@ public class DataBaseConnection {
                 Karlson karlson = new Karlson(name,flyspeed);
                 karlson.setDateTime(time);
                 karlson.setOwner(username);
-
+                karlson.setX(x);
+                karlson.setY(y);
                 getClothes = connection.prepareStatement("SELECT * FROM \"clothes\" WHERE id=?");
                 getClothes.setInt(1,clothesId);
                 ResultSet resSkill = getClothes.executeQuery();
@@ -78,15 +81,39 @@ public class DataBaseConnection {
         }
     }
 
+    private void updateHuman(Karlson karlson, String username) throws SQLException {
+        int skillId = (int)Math.round( Math.random()*10000000);
+        PreparedStatement preStatement = connection.prepareStatement("UPDATE karlson SET name=?, flyspeed=?, username=?, date=?, clothesid=?, x=?, y=? WHERE id=?;");
+        preStatement.setString(1, karlson.getName());
+        preStatement.setLong(2, karlson.getFlyspeed());
+        preStatement.setString(3, username);
+        preStatement.setDate(4, Date.valueOf(karlson.getDateTime().toLocalDate()));
+        preStatement.setInt(5,skillId);
+        preStatement.setInt(6, karlson.getX());
+        preStatement.setInt(7, karlson.getY());
+        preStatement.setInt(8,karlson.getFlyspeed().hashCode());
+        preStatement.executeUpdate();
+        try {
+            if (!karlson.getClothes().getName().equals("")) {
+                PreparedStatement statementSkills = connection.prepareStatement("INSERT INTO clothes VALUES (?, ?, ?);");
+                statementSkills.setInt(1, skillId);
+                statementSkills.setString(2, karlson.getClothes().getName());
+                statementSkills.setString(3, karlson.getClothes().getColor());
+                statementSkills.executeUpdate();
+            }
+        } catch (NullPointerException e){e.printStackTrace();}
+    }
     private void addHuman(Karlson karlson, String username) throws SQLException {
-        int skillId = karlson.getDateTime().getNano();
-        PreparedStatement preStatement = connection.prepareStatement("INSERT INTO karlson VALUES (?, ?, ?, ?, ?, ?);");
+        int skillId = (int)Math.round( Math.random()*10000000);
+        PreparedStatement preStatement = connection.prepareStatement("INSERT INTO karlson VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
         preStatement.setLong(1,karlson.getFlyspeed().hashCode());
         preStatement.setString(2,karlson.getName());
         preStatement.setLong(3,karlson.getFlyspeed());
         preStatement.setString(4,username);
         preStatement.setDate(5,Date.valueOf(karlson.getDateTime().toLocalDate()));
         preStatement.setInt(6,skillId);
+        preStatement.setInt(7,karlson.getX());
+        preStatement.setInt(8,karlson.getY());
         preStatement.executeUpdate();
         try {
             if (karlson.getClothes().getName() != null) {
@@ -107,7 +134,7 @@ public class DataBaseConnection {
 
                 while (iterator.hasNext()) {
                     Karlson karlson = iterator.next();
-                    addHuman(karlson, karlson.getOwner());
+                    updateHuman(karlson, karlson.getOwner());
                 }
                 System.out.println("The DataBase has been updated.");
             } else {

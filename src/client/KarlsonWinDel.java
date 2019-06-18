@@ -3,10 +3,7 @@ package client;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -99,12 +96,15 @@ public class KarlsonWinDel {
 
         est.setOnAction(actionEvent -> {
             GUIHand.laguage = "est";
+            initialize();
         });
         fra.setOnAction(actionEvent -> {
             GUIHand.laguage = "fra";
+            initialize();
         });
         rus.setOnAction(actionEvent -> {
             GUIHand.laguage = "rus";
+            initialize();
         });
         his.setOnAction(actionEvent -> {
             GUIHand.laguage = "his";
@@ -115,6 +115,7 @@ public class KarlsonWinDel {
                 alert.setContentText("А ты Пидорас");
                 alert.showAndWait();
             } catch (Exception e){}
+            initialize();
         });
 
         Locale locale;
@@ -148,29 +149,33 @@ public class KarlsonWinDel {
         addElem.getParentMenu().setText(bundle.getString("menu_elem"));
         addElem.setText(bundle.getString("menu_add"));
         deleteElem.setText(bundle.getString("menu_dell"));
+        removeButton.setText(bundle.getString("menu_dell"));
+        removeLowButton.setText(bundle.getString("menu_dell_lower"));
+        nameField.setPromptText(bundle.getString("table_name"));
+        speedField.setPromptText(bundle.getString("table_speed"));
 
         mapView.setOnAction(actionEvent -> {
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMapFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinMap.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
         });
-
+        import1.setOnAction(actionEvent -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("import");
+            dialog.setHeaderText("Enter path to JSON file.");
+            dialog.showAndWait();
+            GUIHand.import1(dialog.getEditor().getText());
+        });
 
         karlsonUserText.setText(GUIHand.username);
 
         deleteElem.setOnAction(actionEvent -> {
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDelFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinDel.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -179,10 +184,7 @@ public class KarlsonWinDel {
         addElem.setOnAction(actionEvent -> {
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}
@@ -193,10 +195,7 @@ public class KarlsonWinDel {
             GUIHand.show();
             try {
                 Parent root;
-                if(GUIHand.laguage.equals("fra")){
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWinFra.fxml"));}
-                else{
-                    root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));}
+                    root = FXMLLoader.load(getClass().getResource("KarlsonWin.fxml"));
                 Stage stage = (Stage)mainroot.getScene().getWindow();
                 GUIHand.changeScene(stage,root);
             }catch (Exception e){e.printStackTrace();}

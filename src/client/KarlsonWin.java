@@ -12,6 +12,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.converter.DateStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import shared.Clothes;
@@ -20,6 +21,7 @@ import shared.Karlson;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Timer;
 
 public class KarlsonWin {
 
@@ -81,6 +83,12 @@ public class KarlsonWin {
     private TableColumn<Karlson, String> karlsonClothes;
 
     @FXML
+    private TableColumn<Karlson, Integer> tableX;
+
+    @FXML
+    private TableColumn<Karlson, Integer> tableY;
+
+    @FXML
     private MenuItem close;
 
     @FXML
@@ -97,6 +105,10 @@ public class KarlsonWin {
 
     @FXML
     void initialize() {
+
+        Timer timer = new Timer();
+        timer.schedule(new KarlsonTimer(), 0, 5000);
+
         Locale locale;
         switch (GUIHand.laguage){
             case "fra":
@@ -128,8 +140,13 @@ public class KarlsonWin {
         addElem.getParentMenu().setText(bundle.getString("menu_elem"));
         addElem.setText(bundle.getString("menu_add"));
         deleteElem.setText(bundle.getString("menu_dell"));
-
-
+        karlsonName.setText(bundle.getString("table_name"));
+        karlsonDate.setText(bundle.getString("table_date"));
+        karlsonSpeed.setText(bundle.getString("table_speed"));
+        karlsonUsername.setText(bundle.getString("table_user"));
+        karlsonClothes.setText(bundle.getString("table_clothes"));
+        clothesColor.setText(bundle.getString("table_color"));
+        clothesName.setText(bundle.getString("table_name"));
 
 
         karlsonName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -138,7 +155,11 @@ public class KarlsonWin {
         karlsonSpeed.setCellFactory(TextFieldTableCell.<Karlson,Long> forTableColumn(new LongStringConverter()));
         karlsonDate.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
         karlsonUsername.setCellValueFactory(new PropertyValueFactory<>("owner"));
-        karlsonUsername.setCellFactory(TextFieldTableCell.<Karlson> forTableColumn());
+        //karlsonUsername.setCellFactory(TextFieldTableCell.<Karlson> forTableColumn());
+        tableX.setCellValueFactory(new PropertyValueFactory<>("x"));
+        tableX.setCellFactory(TextFieldTableCell.<Karlson,Integer> forTableColumn(new IntegerStringConverter()));
+        tableY.setCellValueFactory(new PropertyValueFactory<>("y"));
+        tableY.setCellFactory(TextFieldTableCell.<Karlson,Integer> forTableColumn(new IntegerStringConverter()));
         try {
             clothesName.setCellValueFactory(cellData -> Bindings.createObjectBinding(() -> cellData.getValue().getClothes().getName()));
             clothesName.setCellFactory(TextFieldTableCell.<Karlson> forTableColumn());
@@ -146,7 +167,10 @@ public class KarlsonWin {
             clothesColor.setCellFactory(TextFieldTableCell.<Karlson> forTableColumn());
         } catch (NullPointerException e) {e.printStackTrace();}
 
+
         if (GUIHand.storage != null){ karlsonTable.setItems(FXCollections.observableArrayList(GUIHand.storage));}
+        else{GUIHand.show();
+            initialize();}
         karlsonTable.setEditable(true);
 
         tableView.setOnAction(actionEvent -> {
@@ -163,6 +187,11 @@ public class KarlsonWin {
             Karlson karlson = karlsonStringCellEditEvent.getTableView().getItems().get(pos.getRow());
             if(GUIHand.username.equals(karlson.getOwner())){
                 karlson.setName(newName);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getFlyspeed().equals(karlson1.getFlyspeed())){
+                        karlson1.setName(newName);
+                    }
+                }
             }
             else {
                 error();
@@ -175,7 +204,12 @@ public class KarlsonWin {
             Karlson karlson  = karlsonLongCellEditEvent.getTableView().getItems().get(pos.getRow());
             karlson.setFlyspeed(newSpeed);
             if(GUIHand.username.equals(karlson.getOwner())){
-                karlson.setFlyspeed(newSpeed);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getName().equals(karlson1.getName())){
+                        karlson1.setFlyspeed(newSpeed);
+                    }
+
+                }
             }
             else {
                 error();
@@ -187,6 +221,11 @@ public class KarlsonWin {
             Karlson karlson = karlsonStringCellEditEvent.getTableView().getItems().get(pos.getRow());
             if(GUIHand.username.equals(karlson.getOwner())){
                 karlson.getClothes().setName(newName);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getFlyspeed().equals(karlson1.getFlyspeed())){
+                        karlson1.getClothes().setName(newName);
+                    }
+                }
             }
             else {
                 error();
@@ -200,11 +239,51 @@ public class KarlsonWin {
             Karlson karlson = karlsonStringCellEditEvent.getTableView().getItems().get(pos.getRow());
             if(GUIHand.username.equals(karlson.getOwner())){
                 karlson.getClothes().setColor(newName);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getFlyspeed().equals(karlson1.getFlyspeed())){
+                        karlson1.getClothes().setColor(newName);
+                    }
+                }
             }
             else {
                error();
             }
         });
+        tableX.setOnEditCommit(karlsonStringCellEditEvent -> {
+            TablePosition<Karlson, Integer> pos = karlsonStringCellEditEvent.getTablePosition();
+            Integer newName = karlsonStringCellEditEvent.getNewValue();
+            Karlson karlson = karlsonStringCellEditEvent.getTableView().getItems().get(pos.getRow());
+            if(GUIHand.username.equals(karlson.getOwner())){
+                karlson.setX(newName);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getFlyspeed().equals(karlson1.getFlyspeed())){
+                        karlson1.setX(newName);
+                    }
+                }
+            }
+            else {
+                error();
+            }
+        });
+
+        tableY.setOnEditCommit(karlsonStringCellEditEvent -> {
+            TablePosition<Karlson, Integer> pos = karlsonStringCellEditEvent.getTablePosition();
+            Integer newName = karlsonStringCellEditEvent.getNewValue();
+            Karlson karlson = karlsonStringCellEditEvent.getTableView().getItems().get(pos.getRow());
+            if(GUIHand.username.equals(karlson.getOwner())){
+                karlson.setY(newName);
+                for (Karlson karlson1:GUIHand.storage) {
+                    if (karlson.getFlyspeed().equals(karlson1.getFlyspeed())){
+                        karlson1.setY(newName);
+                    }
+                }
+            }
+            else {
+                error();
+            }
+        });
+
+
 
         mapView.setOnAction(actionEvent -> {
             try {
@@ -215,6 +294,14 @@ public class KarlsonWin {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        });
+
+        import1.setOnAction(actionEvent -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("import");
+            dialog.setHeaderText("Enter path to JSON file.");
+            dialog.showAndWait();
+            GUIHand.import1(dialog.getEditor().getText());
         });
 
 
@@ -270,6 +357,7 @@ public class KarlsonWin {
 
         close.setOnAction(actionEvent -> {
             Stage stage = (Stage) mainroot.getScene().getWindow();
+            timer.cancel();
             stage.close();
         });
     }

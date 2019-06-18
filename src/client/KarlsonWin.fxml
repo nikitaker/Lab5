@@ -52,8 +52,10 @@
           <TableColumn fx:id="karlsonName" prefWidth="75.0" text="Имя" />
           <TableColumn fx:id="karlsonSpeed" prefWidth="60.0" text="Скорость" />
             <TableColumn fx:id="karlsonDate" prefWidth="94.0" text="Дата" />
-            <TableColumn fx:id="karlsonUsername" prefWidth="91.0" text="Пользователь" />
-            <TableColumn fx:id="karlsonClothes" prefWidth="210.0" text="Одежда">
+            <TableColumn fx:id="karlsonUsername" prefWidth="75.0" text="Пользователь" />
+            <TableColumn fx:id="tableX" minWidth="7.0" prefWidth="32.0" text="X" />
+            <TableColumn fx:id="tableY" prefWidth="35.0" text="Y" />
+            <TableColumn fx:id="karlsonClothes" prefWidth="143.0" text="Одежда">
                <columns>
                   <TableColumn fx:id="clothesName" prefWidth="83.0" text="Название" />
                   <TableColumn fx:id="clothesColor" prefWidth="67.0" text="Цвет" />

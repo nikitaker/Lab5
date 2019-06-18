@@ -14,42 +14,76 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
     public Karlson(String name, Long flyspeed) {
         this.setName(name);
         this.setFlyspeed(flyspeed);
-
     }
+
+    public Karlson(Karlson karlson) {
+        this.setName(karlson.getName());
+        this.setFlyspeed(karlson.getFlyspeed());
+        this.setY(karlson.getY());
+        this.setX(karlson.getX());
+        this.setDateTime(karlson.getDateTime());
+        this.setOwner(karlson.getOwner());
+        this.setClothes(karlson.getClothes());
+    }
+
+
 
     public void setDateTime(ZonedDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
     public ZonedDateTime getDateTime() {
-        return dateTime;
+        return ZonedDateTime.now();
     }
 
     public int getOwnerId(){
-        return (int)Math.round(Math.log(owner.hashCode())*10);
+        if(owner != null){
+        return (int)Math.round(Math.log(owner.hashCode())*10);}
+        else{
+            return 1;
+        }
     }
 
-    public int x;
-    public int y;
+    private Integer x;
+    private Integer y;
     private ZonedDateTime dateTime;
     private String owner = "all";
-    private State state;
     private Clothes clothes;
     private Long flyspeed;
     private String name;
+
+    public void setX(Integer x) {
+        this.x = x;
+    }
+
+    public void setY(Integer y) {
+        this.y = y;
+    }
+
+    public Integer getX() {
+        if(x == null){
+            return 1;
+        }else{
+        return x;}
+    }
+
+    public Integer getY() {
+        if(y == null){
+            return 1;
+        }else{
+            return y;}
+    }
 
     public void setOwner(String owner) {
         this.owner = owner;
     }
 
     public String getOwner() {
-        return owner;
+        if(owner != null){
+        return owner;}
+        else{return "admin";}
     }
 
-    void dress(){state = State.WITCH;
-        System.out.println("Карлсон переоделся в ведьму");}
-    void undress(){state = State.KARLSON;
-        System.out.println("Ведьма сорвала плащ и превратилась в Карлсона");}
 
     @Override
     public boolean isSeen(People person) {
@@ -111,10 +145,5 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
         System.out.println("AAAAAAAAAAAAAAAAAAAAA");
     }
 
-    void state(){
-        if(state == State.WITCH){
-            System.out.println("Карлсон был похож на маленькую ведьму: лицо, вымазанное черным, на голове косынка, а на плечах развевался ведьминский плащ");
-        }
-    }
 
 }
