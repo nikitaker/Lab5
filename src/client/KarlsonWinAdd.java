@@ -9,6 +9,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import shared.Karlson;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class KarlsonWinAdd {
 
     @FXML
@@ -73,6 +76,63 @@ public class KarlsonWinAdd {
 
     @FXML
     void initialize(){
+        est.setOnAction(actionEvent -> {
+            GUIHand.laguage = "est";
+        });
+        fra.setOnAction(actionEvent -> {
+            GUIHand.laguage = "fra";
+        });
+        rus.setOnAction(actionEvent -> {
+            GUIHand.laguage = "rus";
+        });
+        his.setOnAction(actionEvent -> {
+            GUIHand.laguage = "his";
+            try {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Внимание");
+                alert.setHeaderText("Язык: Испания(Гондурас)");
+                alert.setContentText("А ты Пидорас");
+                alert.showAndWait();
+            } catch (Exception e){}
+        });
+
+        Locale locale;
+        switch (GUIHand.laguage){
+            case "fra":
+                locale = new Locale("fr");
+                break;
+            case "est":
+                locale = new Locale("et");
+                break;
+            case "his":
+                locale = new Locale("es");
+                break;
+            default:
+                locale = new Locale("ru");
+                break;
+        }
+        ResourceBundle bundle = ResourceBundle.getBundle("Lang.lang",locale);
+        save.getParentMenu().setText(bundle.getString("menu_file"));
+        save.setText(bundle.getString("menu_save"));
+        import1.setText(bundle.getString("menu_import"));
+        close.setText(bundle.getString("menu_close"));
+        rus.getParentMenu().setText(bundle.getString("menu_lang"));
+        rus.setText(bundle.getString("menu_rus"));
+        fra.setText(bundle.getString("menu_fra"));
+        his.setText(bundle.getString("menu_his"));
+        est.setText(bundle.getString("menu_est"));
+        mapView.getParentMenu().setText(bundle.getString("menu_view"));
+        mapView.setText(bundle.getString("menu_map"));
+        tableView.setText(bundle.getString("menu_table"));
+        addElem.getParentMenu().setText(bundle.getString("menu_elem"));
+        addElem.setText(bundle.getString("menu_add"));
+        deleteElem.setText(bundle.getString("menu_dell"));
+
+
+
+
+
+
 
         addButton.setOnAction(actionEvent -> {
             String s = "add {\""+ speedField.getText()+ "\":{\"name\":\""+nameFiels.getText()+"\",\"flyspeed\":\"" +
@@ -82,38 +142,6 @@ public class KarlsonWinAdd {
         });
 
 
-
-
-        est.setOnAction(actionEvent -> {GUIHand.laguage = "est";
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddEst.fxml"));
-                Stage stage = (Stage)mainroot.getScene().getWindow();
-                GUIHand.changeScene(stage,root);
-            }catch (Exception e){}
-        });
-        fra.setOnAction(actionEvent -> {GUIHand.laguage = "fra";
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddFra.fxml"));
-                Stage stage = (Stage)mainroot.getScene().getWindow();
-                GUIHand.changeScene(stage,root);
-            }catch (Exception e){}
-        });
-        rus.setOnAction(actionEvent -> {GUIHand.laguage = "rus";
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAdd.fxml"));
-                Stage stage = (Stage)mainroot.getScene().getWindow();
-                GUIHand.changeScene(stage,root);
-            }catch (Exception e){}
-        });
-        his.setOnAction(actionEvent -> {
-            GUIHand.laguage = "his";
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("KarlsonWinAddHis.fxml"));
-                Stage stage = (Stage) mainroot.getScene().getWindow();
-                GUIHand.changeScene(stage, root);
-            } catch (Exception e) {
-            }
-        });
 
         karlsonUserText.setText(GUIHand.username);
 

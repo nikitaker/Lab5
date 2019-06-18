@@ -29,12 +29,14 @@ public class Karlson implements Person, Helicopter, Comparable<Karlson>, Seriali
         return (int)Math.round(Math.log(owner.hashCode())*10);
     }
 
+    public int x;
+    public int y;
     private ZonedDateTime dateTime;
-    String owner = "all";
-    State state;
-    Clothes clothes;
-    Long flyspeed;
-    String name;
+    private String owner = "all";
+    private State state;
+    private Clothes clothes;
+    private Long flyspeed;
+    private String name;
 
     public void setOwner(String owner) {
         this.owner = owner;

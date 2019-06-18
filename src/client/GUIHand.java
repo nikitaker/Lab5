@@ -6,6 +6,7 @@ import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.*;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import shared.Karlson;
 
@@ -23,7 +24,20 @@ public class GUIHand extends Application {
     static String output;
     static String laguage;
 
+    public static void alert(){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Внимание");
+        alert.setHeaderText("Сервер недоступен");
+        alert.showAndWait();
+        System.exit(1);
+    }
     public void start(Stage primaryStage) throws Exception{
+
+        try {
+            client = new Client("ubuntu",8888);
+            client.testServerConnection();
+        } catch (Exception e){e.printStackTrace();}
+
         Parent root = FXMLLoader.load(getClass().getResource("Window.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Karlson");
@@ -32,13 +46,7 @@ public class GUIHand extends Application {
     }
 
     public static void main(String[] args) {
-        try {
-            client = new Client("ubuntu",8888);
-            client.testServerConnection();
-        }
-        catch (Exception e){e.printStackTrace();}
         launch(args);
-
     }
     static Client client;
 
@@ -66,6 +74,7 @@ public class GUIHand extends Application {
 
     static void changeScene(ActionEvent actionEvent, Parent root) {
         try {
+            show();
             actionEvent1 = actionEvent;
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -79,6 +88,7 @@ public class GUIHand extends Application {
 
     static void changeScene(Stage stage2, Parent root) {
         try {
+            show();
             Scene scene = new Scene(root);
             Stage stage = stage2;
             stage.setScene(scene);
@@ -91,6 +101,7 @@ public class GUIHand extends Application {
 
     static void changeScene(Parent root) {
         try {
+            show();
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) actionEvent1.getSource()).getScene().getWindow();
             stage.setScene(scene);

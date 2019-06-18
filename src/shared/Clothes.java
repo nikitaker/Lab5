@@ -24,6 +24,14 @@ public class Clothes implements Serializable {
         else {return "";}
     }
 
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     void dressUp(){
         System.out.println("Карлсон надел" + name + color + "цвета");
     }

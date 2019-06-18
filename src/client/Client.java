@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import server.DataBaseConnection;
 import shared.*;
 import shared.FileReader;
@@ -81,7 +82,7 @@ public class Client {
                 System.out.println("Connection with the server is established");
             } else {
                 System.err.println("Server is unreachable at this moment");
-                System.exit(1);
+                GUIHand.alert();
             }
         }
 
