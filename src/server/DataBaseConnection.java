@@ -94,7 +94,7 @@ public class DataBaseConnection {
         preStatement.setInt(8,karlson.getFlyspeed().hashCode());
         preStatement.executeUpdate();
         try {
-            if (!karlson.getClothes().getName().equals("")) {
+            if (!karlson.getClothes().getName().equals("") || !karlson.getClothes().getColor().equals("")) {
                 PreparedStatement statementSkills = connection.prepareStatement("INSERT INTO clothes VALUES (?, ?, ?);");
                 statementSkills.setInt(1, skillId);
                 statementSkills.setString(2, karlson.getClothes().getName());
@@ -116,7 +116,7 @@ public class DataBaseConnection {
         preStatement.setInt(8,karlson.getY());
         preStatement.executeUpdate();
         try {
-            if (karlson.getClothes().getName() != null) {
+            if (!karlson.getClothes().getName().equals("")) {
                 PreparedStatement statementSkills = connection.prepareStatement("INSERT INTO clothes VALUES (?, ?, ?);");
                 statementSkills.setInt(1, skillId);
                 statementSkills.setString(2, karlson.getClothes().getName());

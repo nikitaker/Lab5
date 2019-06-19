@@ -37,6 +37,7 @@ public class KarlsonWin {
 
     @FXML
     private TableColumn<Karlson, String> clothesColor;
+
     @FXML
     private TableColumn<Karlson, String> clothesName;
 
@@ -107,7 +108,7 @@ public class KarlsonWin {
     void initialize() {
 
         Timer timer = new Timer();
-        timer.schedule(new KarlsonTimer(), 0, 5000);
+        timer.schedule(new KarlsonTimer(), 0, 30000);
 
         Locale locale;
         switch (GUIHand.laguage){
@@ -215,6 +216,7 @@ public class KarlsonWin {
                 error();
             }
         });
+
         clothesName.setOnEditCommit(karlsonStringCellEditEvent -> {
             TablePosition<Karlson, String> pos = karlsonStringCellEditEvent.getTablePosition();
             String newName = karlsonStringCellEditEvent.getNewValue();

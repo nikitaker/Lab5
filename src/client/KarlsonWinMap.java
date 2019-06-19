@@ -1,6 +1,7 @@
 package client;
 
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.animation.KeyFrame;
@@ -14,15 +15,13 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import shared.Karlson;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -71,18 +70,20 @@ public class KarlsonWinMap {
     private Text karlsonInfo;
 
     private static final int UI_ANIMATION_TIME_MSEC = 30000;
-
     private static final double MIN_RADIUS = 0.0;
     private static final double MAX_RADIUS = 70.0;
 
-    private void applyEffect(Node node) {
-        GaussianBlur blur = new GaussianBlur(MIN_RADIUS);
-        node.setEffect(blur);
-        Timeline timeline = new Timeline();
-        KeyValue kv = new KeyValue(blur.radiusProperty(), MAX_RADIUS);
-        KeyFrame kf = new KeyFrame(Duration.millis(UI_ANIMATION_TIME_MSEC), kv);
-        timeline.getKeyFrames().add(kf);
-        timeline.play();
+    private void moveKarlson(Karlson karlson, Integer x, Integer y){
+        for (Node node:mainroot.getChildren()){
+            if(node.getUserData() != null) {
+                if (node.getUserData().equals(karlson.getFlyspeed())) {
+                    TranslateTransition tt = new TranslateTransition(Duration.millis(8000), node);
+                    tt.setByX(x*10);
+                    tt.setByY(y*10);
+                    tt.play();
+                }
+            }
+        }
     }
 
     ArrayList<Karlson> karlsons;
@@ -96,8 +97,7 @@ public class KarlsonWinMap {
         {
             System.out.println("Пизда");
         }
-        karlsons = GUIHand.storage;
-        for (Karlson karlson:karlsons)
+        for (Karlson karlson:GUIHand.storage)
         {
             System.out.println(karlson.getName());
             Ellipse ellipse = new Ellipse();
@@ -105,19 +105,42 @@ public class KarlsonWinMap {
             Circle knopka = new Circle();
             Line line = new Line();
             Line line1 = new Line();
+            Arc hair = new Arc();
+            Arc pants = new Arc();
             double x = karlson.getX();
             double y = karlson.getY();
 
-            line.setStrokeWidth(4);
-            line1.setStrokeWidth(4);
+
+            hair.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*9);
+            hair.setCenterY(y*10);
+            hair.setRadiusX((Math.log(karlson.getFlyspeed()))*5);
+            hair.setRadiusY((Math.log(karlson.getFlyspeed()))*5);
+            hair.setStartAngle(0);
+            hair.setLength(150);
+            hair.setFill(Color.DARKORANGE);
+            hair.setUserData(karlson.getFlyspeed());
+
+            pants.setCenterX(x*10);
+            pants.setCenterY(y*10);
+            pants.setRadiusX((Math.log(karlson.getFlyspeed()))*8);
+            pants.setRadiusY((Math.log(karlson.getFlyspeed()))*5);
+            pants.setStartAngle(-80);
+            pants.setLength(160);
+            pants.setFill(Color.SNOW);
+            pants.setUserData(karlson.getFlyspeed());
+
+            line.setStrokeWidth((Math.log(karlson.getFlyspeed())*2));
+            line1.setStrokeWidth((Math.log(karlson.getFlyspeed())*2));
+            line.setStroke(Color.RED);
+            line1.setStroke(Color.RED);
             line.setStartX(x*10);
-            line.setStartY(y*10 -(Math.log(karlson.getFlyspeed()))*5);
+            line.setStartY(y*10 -(Math.log(karlson.getFlyspeed()))*4);
             line1.setStartX(x*10);
-            line1.setStartY(y*10 - (Math.log(karlson.getFlyspeed()))*5);
-            line.setEndX(x*10 - (Math.log(karlson.getFlyspeed()))*5);
-            line.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*5);
-            line1.setEndX(x*10 + (Math.log(karlson.getFlyspeed()))*5);
-            line1.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*5);
+            line1.setStartY(y*10 - (Math.log(karlson.getFlyspeed()))*4);
+            line.setEndX(x*10 - (Math.log(karlson.getFlyspeed()))*4);
+            line.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*4);
+            line1.setEndX(x*10 + (Math.log(karlson.getFlyspeed()))*4);
+            line1.setEndY(y*10 - 2*(Math.log(karlson.getFlyspeed()))*4);
             line.setUserData(karlson.getFlyspeed());
             line1.setUserData(karlson.getFlyspeed());
 
@@ -125,37 +148,55 @@ public class KarlsonWinMap {
             ellipse.setCenterY(y*10);
             knopka.setCenterX(x*10);
             knopka.setCenterY(y*10 + (Math.log(karlson.getFlyspeed()))*5);
-            knopka.setRadius((Math.log(karlson.getFlyspeed()))*2);
+            knopka.setRadius((Math.log(karlson.getFlyspeed()))*1.5);
             knopka.setFill(Color.RED);
             knopka.setUserData(karlson.getFlyspeed());
-            circle.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*8);
+            circle.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*9);
             circle.setCenterY(y*10);
             ellipse.setRadiusX((Math.log(karlson.getFlyspeed()))*8);
             ellipse.setRadiusY((Math.log(karlson.getFlyspeed()))*5);
             circle.setRadius((Math.log(karlson.getFlyspeed()))*5);
-            Shape shape = Shape.union(ellipse,circle);
-            shape.setFill(javafx.scene.paint.Color.rgb(karlson.getOwnerId()+20,karlson.getOwnerId()+65,karlson.getOwnerId()+65));
-            shape.setUserData(karlson.getFlyspeed());
-            shape.setStroke(Color.PURPLE);
-            shape.setStrokeWidth(3);
-            shapes.add(shape);
-            mainroot.getChildren().add(shape);
-            mainroot.getChildren().add(knopka);
+            ellipse.setFill(javafx.scene.paint.Color.rgb(karlson.getOwnerId()+20,karlson.getOwnerId()+65,karlson.getOwnerId()+30));
+            ellipse.setUserData(karlson.getFlyspeed());
+            ellipse.setStroke(Color.GRAY);
+            ellipse.setStrokeWidth(3);
+            circle.setFill(Color.BLANCHEDALMOND);
+            circle.setStroke(Color.BLACK);
+            circle.setUserData(karlson.getFlyspeed());
             mainroot.getChildren().add(line);
             mainroot.getChildren().add(line1);
+            mainroot.getChildren().add(ellipse);
+            mainroot.getChildren().add(pants);
+            mainroot.getChildren().add(circle);
+            mainroot.getChildren().add(hair);
+            mainroot.getChildren().add(knopka);
         }
+
+        mainroot.setOnMouseClicked(mouseEvent -> {
+        for (Karlson karlson : GUIHand.storage) {
+            long ln1 = karlson.getFlyspeed();
+            for (Karlson karlson2: GUIHand.memoryStorage) {
+                long ln2 = karlson2.getFlyspeed();
+                if(ln1 == ln2){
+                    if(!karlson.getX().equals(karlson2.getX()) || !karlson.getY().equals(karlson2.getY())){
+                        moveKarlson(karlson,karlson.getX(),karlson.getY());
+                    }
+
+                }
+            }
+        }});
 
 
         for (Node shape:mainroot.getChildren()) {
             shape.setOnMouseClicked(mouseEvent -> {
-                applyEffect(shape);
+                if (shape.getUserData() != null){
                 long ln = (Long) shape.getUserData();
-                for (Karlson karlson : karlsons) {
+                for (Karlson karlson : GUIHand.storage) {
                     if (karlson.getFlyspeed() == ln) {
                         karlsonInfo.setText(karlson.getName() + "\n" + karlson.getFlyspeed() + "\n" + karlson.getOwner() + "\n"
                                 + karlson.getClothes().getName() + " " + karlson.getClothes().getColor());
                     }
-                }
+                }}
             });
         }
 

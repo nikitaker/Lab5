@@ -348,9 +348,6 @@ public class Client {
                  ObjectInputStream ois = new ObjectInputStream(bais)) {
                 ArrayList<Karlson> storage = (ArrayList<Karlson>) ois.readObject();
                 GUIHand.storage = storage;
-                synchronized (storage) {
-                    storage.forEach(System.out::println);
-                }
             } catch (IOException | ClassNotFoundException e) {
                 //e.printStackTrace();
             }}else if (command.equals("Email registration is approved!")){
