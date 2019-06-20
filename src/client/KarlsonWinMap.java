@@ -1,7 +1,6 @@
 package client;
 
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.animation.KeyFrame;
@@ -11,17 +10,14 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import shared.Karlson;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -73,14 +69,28 @@ public class KarlsonWinMap {
     private static final double MIN_RADIUS = 0.0;
     private static final double MAX_RADIUS = 70.0;
 
-    private void moveKarlson(Karlson karlson, Integer x, Integer y){
+    private void moveKarlson(Karlson karlson,Karlson karlson2){
         for (Node node:mainroot.getChildren()){
             if(node.getUserData() != null) {
                 if (node.getUserData().equals(karlson.getFlyspeed())) {
-                    TranslateTransition tt = new TranslateTransition(Duration.millis(8000), node);
-                    tt.setByX(x*10);
-                    tt.setByY(y*10);
-                    tt.play();
+                    double x = (karlson.getX() - karlson2.getX())*10;
+                    double y = (karlson.getY() - karlson2.getY())*10;
+                    Shape shape =(Shape)node;
+                    KeyValue k1 = new KeyValue(shape.translateXProperty(), x);
+                    KeyValue k2 = new KeyValue(shape.translateYProperty(), y);
+                    KeyFrame keyFrame = new KeyFrame(Duration.millis(3000),k1,k2);
+                    Timeline timeline = new Timeline(keyFrame);
+                    timeline.play();
+                    try{
+                        Line line = (Line) node;
+                        KeyFrame keyFrame1;
+                        if(line.getEndX() == karlson2.getX()*10 - (Math.log(karlson2.getFlyspeed()))*4){keyFrame1 = new KeyFrame(Duration.millis(500),new KeyValue(line.endXProperty(), karlson2.getX()*10 + (Math.log(karlson2.getFlyspeed()))*4));}
+                        else {keyFrame1 = new KeyFrame(Duration.millis(500),new KeyValue(line.endXProperty(), karlson2.getX()*10 - (Math.log(karlson.getFlyspeed()))*4));}
+                        Timeline timeline1 = new Timeline(keyFrame1);
+                        timeline1.setCycleCount(6);
+                        timeline1.setAutoReverse(true);
+                        timeline1.play();
+                    }catch (Exception e){}
                 }
             }
         }
@@ -95,7 +105,6 @@ public class KarlsonWinMap {
         GUIHand.show();
         while (GUIHand.storage == null)
         {
-            System.out.println("Пизда");
         }
         for (Karlson karlson:GUIHand.storage)
         {
@@ -107,8 +116,23 @@ public class KarlsonWinMap {
             Line line1 = new Line();
             Arc hair = new Arc();
             Arc pants = new Arc();
+            Circle arm = new Circle();
+            Rectangle leg = new Rectangle();
             double x = karlson.getX();
             double y = karlson.getY();
+
+            leg.setX(x*10 + (Math.log(karlson.getFlyspeed()))*6);
+            leg.setHeight((Math.log(karlson.getFlyspeed()))*5);
+            leg.setWidth((Math.log(karlson.getFlyspeed()))*3);
+            leg.setY(y*10);
+            leg.setFill(Color.RED);
+            leg.setUserData(karlson.getFlyspeed());
+
+            arm.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*2);
+            arm.setRadius((Math.log(karlson.getFlyspeed()))*1.5);
+            arm.setCenterY(y*10);
+            arm.setFill(Color.BLANCHEDALMOND);
+            arm.setUserData(karlson.getFlyspeed());
 
 
             hair.setCenterX(x*10 - (Math.log(karlson.getFlyspeed()))*9);
@@ -119,6 +143,7 @@ public class KarlsonWinMap {
             hair.setLength(150);
             hair.setFill(Color.DARKORANGE);
             hair.setUserData(karlson.getFlyspeed());
+
 
             pants.setCenterX(x*10);
             pants.setCenterY(y*10);
@@ -170,6 +195,8 @@ public class KarlsonWinMap {
             mainroot.getChildren().add(circle);
             mainroot.getChildren().add(hair);
             mainroot.getChildren().add(knopka);
+            mainroot.getChildren().add(arm);
+            mainroot.getChildren().add(leg);
         }
 
         mainroot.setOnMouseClicked(mouseEvent -> {
@@ -179,11 +206,31 @@ public class KarlsonWinMap {
                 long ln2 = karlson2.getFlyspeed();
                 if(ln1 == ln2){
                     if(!karlson.getX().equals(karlson2.getX()) || !karlson.getY().equals(karlson2.getY())){
-                        moveKarlson(karlson,karlson.getX(),karlson.getY());
-                    }
+                        moveKarlson(karlson,karlson2);}
 
                 }
             }
+        }
+        if(GUIHand.storage.size() > GUIHand.memoryStorage.size()){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Был добавлен карлсон");
+            alert.showAndWait();
+            Karlson karlson2;
+            Karlson karlson = new Karlson("hih",123L);
+            karlson2 = karlson;
+            karlson.setX(0);
+            karlson.setY(0);
+            karlson2.setX(500);
+            karlson2.setY(500);
+            moveKarlson(karlson,karlson2);
+            initialize();
+        }
+        if(GUIHand.storage.size() < GUIHand.memoryStorage.size()){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Был удален карлсон");
+            alert.showAndWait();
         }});
 
 
